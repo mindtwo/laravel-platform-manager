@@ -16,7 +16,15 @@ class LaravelPlatformManagerProvider extends ServiceProvider
     public function boot()
     {
         $configPath = __DIR__ . '/../../config/platform-resolver.php';
-        $this->publishes([$configPath => $this->getConfigPath()], 'config');
+
+        $this->publishes([
+            $configPath => $this->getConfigPath()
+        ], 'config');
+
+        $this->publishes([
+            __DIR__.'/../../database/migrations/create_platforms_table.php' =>  database_path('migrations/' . date('Y_m_d_His', time()) . '_create_platforms_table.php'),
+        ]);
+
         $this->loadMigrationsFrom($this->getMigrationsPath());
     }
 
