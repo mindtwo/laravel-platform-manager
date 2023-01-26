@@ -67,6 +67,11 @@ class Platform extends Model
         });
     }
 
+    /**
+     * Begin querying the model.
+     *
+     * @return PlatformBuilder|Builder
+     */
     public static function query(): PlatformBuilder|Builder
     {
         return parent::query();
