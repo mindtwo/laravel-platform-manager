@@ -19,12 +19,20 @@ composer require mindtwo/laravel-platform-manager
 To publish the modules config file simply run
 
 ```bash
-php artisan vendor:publish config
+php artisan vendor:publish --provider="mindtwo\LaravelPlatformManager\Providers\LaravelPlatformManagerProvider" --tag=config
 ```
 This publishes the `platform-resolver.php` config file to your projects config folder.
 Inside the config you can specify your Platform model which will be used by the package.
 
-If you want to use the `Platform` model provided by this package you must run
+### Publish migrations
+
+To publish the modules migrations file simply run
+
+```bash
+php artisan vendor:publish --provider="mindtwo\LaravelPlatformManager\Providers\LaravelPlatformManagerProvider" --tag=migrations```
+```
+
+After publishing run
 
 ```bash
 php artisan migrate

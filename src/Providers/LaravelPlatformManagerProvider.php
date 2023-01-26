@@ -21,11 +21,11 @@ class LaravelPlatformManagerProvider extends ServiceProvider
             $configPath => $this->getConfigPath()
         ], 'config');
 
-        $this->publishes([
-            __DIR__.'/../../database/migrations/create_platforms_table.php' =>  database_path('migrations/' . date('Y_m_d_His', time()) . '_create_platforms_table.php'),
-        ]);
-
-        $this->loadMigrationsFrom($this->getMigrationsPath());
+        if (! class_exists('CreatePlatformsTable')) {
+            $this->publishes([
+                __DIR__.'/../../database/migrations/create_platforms_table.php.stub' =>  database_path('migrations/' . date('Y_m_d_His', time()) . '_create_platforms_table.php'),
+            ], 'migrations');
+        }
     }
 
     /**
