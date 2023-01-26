@@ -15,17 +15,8 @@ class LaravelPlatformManagerProvider extends ServiceProvider
      */
     public function boot()
     {
-        $configPath = __DIR__ . '/../../config/platform-resolver.php';
-
-        $this->publishes([
-            $configPath => $this->getConfigPath()
-        ], 'config');
-
-        if (! class_exists('CreatePlatformsTable')) {
-            $this->publishes([
-                __DIR__.'/../../database/migrations/create_platforms_table.php.stub' =>  database_path('migrations/' . date('Y_m_d_His', time()) . '_create_platforms_table.php'),
-            ], 'migrations');
-        }
+        $this->publishConfig();
+        $this->publishMigration();
     }
 
     /**
@@ -35,8 +26,7 @@ class LaravelPlatformManagerProvider extends ServiceProvider
      */
     public function register()
     {
-        $configPath = __DIR__ . '/../../config/platform-resolver.php';
-        $this->mergeConfigFrom($configPath, 'platform-resolver');
+        $this->mergeConfigFrom(__DIR__ . '/../../config/platform-resolver.php', 'platform-resolver');
 
         $this->app->scoped(PlatformResolver::class, function ($app) {
             $request = $app->make(Request::class);
@@ -46,33 +36,32 @@ class LaravelPlatformManagerProvider extends ServiceProvider
     }
 
     /**
-     * Get our migration paths
+     * Publish the config file.
      *
-     * @return array
+     * @return void
      */
-    private function getMigrationsPath(): array
+    protected function publishConfig()
     {
-        return is_array(config('platforms.migrations_path')) ?
-            config('platforms.migrations_path') : [__DIR__.'/../../database/migrations', __DIR__.'/../../database/platforms'];
+        $configPath = __DIR__ . '/../../config/platform-resolver.php';
+
+        $this->publishes([
+            $configPath => config_path('platform-resolver.php')
+        ], 'config');
     }
 
     /**
-     * Get the config path
+     * Publish migration.
      *
-     * @return string
+     * @return void
      */
-    protected function getConfigPath()
+    protected function publishMigration()
     {
-        return config_path('platform-resolver.php');
-    }
+        if (class_exists('CreatePlatformsTable')) {
+            return;
+        }
 
-    /**
-     * Publish the config file
-     *
-     * @param  string $configPath
-     */
-    protected function publishConfig($configPath)
-    {
-        $this->publishes([$configPath => config_path('platform-resolver.php')], 'config');
+        $this->publishes([
+            __DIR__.'/../../database/migrations/create_platforms_table.php.stub' =>  database_path('migrations/' . date('Y_m_d_His', time()) . '_create_platforms_table.php'),
+        ], 'migrations');
     }
 }
