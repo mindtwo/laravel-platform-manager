@@ -9,7 +9,7 @@ use mindtwo\LaravelPlatformManager\Models\Platform;
 class PlatformResolver
 {
     /**
-     * Current platfrom for host
+     * Current platform for host.
      *
      * @var Platform|null
      */
@@ -31,7 +31,7 @@ class PlatformResolver
         try {
             $this->current = $model->query()->byHostname($this->request->getHost())->firstOrFail();
         } catch (ModelNotFoundException $e) {
-            $this->current =$model->query()->isMain()->firstOrFail();
+            $this->current = $model->query()->isMain()->firstOrFail();
         }
 
         return $this->current;

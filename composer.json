@@ -22,6 +22,7 @@
         "illuminate/support": "^9.0",
         "illuminate/database": "^9.0",
         "illuminate/console": "^9.0",
+        "illuminate/http": "^9.0",
         "mindtwo/native-enum": "^1.7"
     },
     "require-dev": {
