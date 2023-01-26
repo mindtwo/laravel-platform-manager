@@ -30,10 +30,14 @@ class PlatformBuilder extends Builder
     /**
      * Filter platforms by their hostname
      *
+     * @param string $hostname
+     *
      * @return PlatformBuilder
      */
     public function byHostname(string $hostname): PlatformBuilder
     {
-        return $this->where('hostname', $hostname);
+        return $this
+            ->where('hostname', $hostname)
+            ->orWhere(fn (self $query) => $query->whereJsonContains('additional_hostnames', $hostname));
     }
 }

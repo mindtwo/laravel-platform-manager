@@ -26,19 +26,20 @@ class StatefulPlatformDomains
      */
     public function handle(Request $request, Closure $next)
     {
-        $stateful = config('sanctum.stateful');
+        $stateful = config('sanctum.stateful', []);
         $currentPlatform = $this->platformResolver->getCurrentPlatform();
 
         if (!empty($currentPlatform) && isset($currentPlatform->hostname)) {
-            // trim all possible hostnames
-            $stateful = collect(array_merge($stateful, explode(',', $currentPlatform->hostname)))
-                ->map(function ($value) {
-                    return trim($value);
-                })
+            $statefulDomains = collect([
+                $currentPlatform->hostname,
+                ...$stateful,
+                ...$currentPlatform->additional_hostnames ?? []
+            ])
+                ->map(fn ($item) => trim($item))
                 ->unique()
                 ->toArray();
 
-            config(['sanctum.stateful' => $stateful]);
+            config(['sanctum.stateful' => $statefulDomains]);
         }
 
         return $next($request);

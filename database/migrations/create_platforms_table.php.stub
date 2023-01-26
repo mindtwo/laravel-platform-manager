@@ -21,6 +21,7 @@ return new class extends Migration {
                 $table->string('name')->nullable();
                 $table->string('email', 50)->nullable();
                 $table->string('hostname', 50)->nullable()->index();
+                $table->json('additional_hostnames')->nullable();
                 $table->string('primary_color', 7)->default('#1E9FDA')->nullable();
                 $table->string('logo_file')->nullable();
                 $table->timestamps();
