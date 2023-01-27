@@ -58,6 +58,11 @@ class Platform extends Resource
                 __('Multiple entries can be separated by commas.')
             ),
 
+            Text::make(__('Additional Hostnames'), 'additional_hostnames')
+                ->help('Comma separated list')
+                ->resolveUsing(fn ($item) => collect($item ?? [])->implode(','))
+                ->fillUsing(fn ($request, $model, $attribute, $requestAttribute) => $model->{$attribute} = explode(',', $request->input($attribute) ?? '')),
+
             Image::make(__('Platform Logo'), 'logo_file')->disk(config('media-library.disk_name'))->hideFromIndex(),
         ];
     }

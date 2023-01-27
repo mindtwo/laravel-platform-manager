@@ -22,6 +22,7 @@ use mindtwo\LaravelPlatformManager\Builders\PlatformBuilder;
  * @property string|null $hostname
  * @property string|null $logo_file
  * @property string|null $primary_color
+ * @property array|null $additional_hostnames
  * @property Collection $courses
  * @property Collection $instructors
  * @property Collection $users
@@ -46,6 +47,7 @@ class Platform extends Model
     protected $casts = [
         'is_main' => 'boolean',
         'visibility' => 'boolean',
+        'additional_hostnames' => 'array',
     ];
 
     /**
