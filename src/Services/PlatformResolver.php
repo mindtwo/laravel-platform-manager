@@ -20,7 +20,13 @@ class PlatformResolver
     ) {
     }
 
-    public function getCurrentPlatform(): Platform
+    /**
+     * Get current Platform. Return type is your configured
+     * eloquent platform model class. See: config('platform-resolver.model')
+     *
+     * @return mixed
+     */
+    public function getCurrentPlatform()
     {
         if (isset($this->current)) {
             return $this->current;
