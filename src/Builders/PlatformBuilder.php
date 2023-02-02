@@ -38,6 +38,6 @@ class PlatformBuilder extends Builder
     {
         return $this
             ->where('hostname', $hostname)
-            ->orWhere(fn (self $query) => $query->whereJsonContains('additional_hostnames', $hostname));
+            ->orWhere(fn (self $query) => $query->where('additional_hostnames', 'LIKE', "%\"$hostname\"%"));
     }
 }
