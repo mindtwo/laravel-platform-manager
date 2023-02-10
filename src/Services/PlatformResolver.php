@@ -2,7 +2,6 @@
 
 namespace mindtwo\LaravelPlatformManager\Services;
 
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use mindtwo\LaravelPlatformManager\Models\Platform;
 
@@ -32,11 +31,19 @@ class PlatformResolver
             return $this->current;
         }
 
+        /** @var Platform $model */
         $model = app(config('platform-resolver.model'));
 
-        try {
-            $this->current = $model->query()->byHostname($this->request->getHost())->firstOrFail();
-        } catch (ModelNotFoundException $e) {
+        if ($this->request->hasHeader('X-Platform-Public-Auth-Token')) {
+            $this->current = $model->resolveByPublicAuthToken($this->request->header('X-Platform-Public-Auth-Token'));
+        }
+        // Check for hostname
+        if (empty($this->current)) {
+            $this->current = $model->query()->byHostname($this->request->getHost())->first();
+        }
+
+        // Fallback primary platform
+        if (empty($this->current)) {
             $this->current = $model->query()->isMain()->firstOrFail();
         }
 

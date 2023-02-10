@@ -16,6 +16,7 @@ return new class extends Migration {
             Schema::create('platforms', function (Blueprint $table) {
                 $table->id();
                 $table->uuid('uuid')->unique();
+                $table->foreignIdFor(config('auth.providers.users.model'), 'owner_id')->nullable();
                 $table->boolean('is_main')->default(0);
                 $table->unsignedSmallInteger('visibility')->default(0);
                 $table->string('name')->nullable();

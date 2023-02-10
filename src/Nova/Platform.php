@@ -9,6 +9,7 @@ use Laravel\Nova\Fields\Image;
 use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Fields\Text;
 use mindtwo\LaravelPlatformManager\Enums\PlatformVisibility;
+use mindtwo\LaravelPlatformManager\Models\Platform as PlatformModel;
 
 class Platform extends Resource
 {
@@ -17,7 +18,14 @@ class Platform extends Resource
      *
      * @var string
      */
-    public static $model = mindtwo\LaravelPlatformManager\Models\Platform::class;
+    public static string $model = PlatformModel::class;
+
+    /**
+     * Indicates if the resource should be globally searchable.
+     *
+     * @var bool
+     */
+    public static $globallySearchable = false;
 
     /**
      * The single value that should be used to represent the resource when being displayed.
@@ -36,6 +44,13 @@ class Platform extends Resource
     ];
 
     /**
+     * Default sorting column
+     *
+     * @var string
+     */
+    public static string $defaultSort = 'id';
+
+    /**
      * Get the fields displayed by the resource.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -43,26 +58,26 @@ class Platform extends Resource
      */
     public function fields(Request $request)
     {
+        return $this->getBaseFields();
+    }
+
+    public function getBaseFields()
+    {
         return [
             ID::make(__('ID'), 'id')->sortable(),
             Boolean::make(__('Main'), 'is_main'),
-
             Select::make(__('Visibility'), 'visibility')
                 ->options(PlatformVisibility::asSelectArray())
                 ->displayUsingLabels()
                 ->rules(['required']),
-
             Text::make(__('Name'), 'name')->sortable()->rules(['required', 'max:255']),
             Text::make(__('Email'), 'email')->sortable()->rules(['required', 'max:255']),
-            Text::make(__('Hostname'), 'hostname')->sortable()->rules(['max:255'])->help(
-                __('Multiple entries can be separated by commas.')
-            ),
-
+            Text::make(__('Hostname'), 'hostname')->sortable()->rules(['max:255']),
             Text::make(__('Additional Hostnames'), 'additional_hostnames')
-                ->help('Comma separated list')
+                ->help(__('Multiple entries can be separated by commas.'))
+                ->hideFromIndex()
                 ->resolveUsing(fn ($item) => collect($item ?? [])->implode(','))
                 ->fillUsing(fn ($request, $model, $attribute, $requestAttribute) => $model->{$attribute} = explode(',', $request->input($attribute) ?? '')),
-
             Image::make(__('Platform Logo'), 'logo_file')->disk(config('media-library.disk_name'))->hideFromIndex(),
         ];
     }
@@ -116,7 +131,7 @@ class Platform extends Resource
      *
      * @return string
      */
-    public static function label()
+    public static function label(): string
     {
         return trans_choice('Platforms', 2);
     }
@@ -126,7 +141,17 @@ class Platform extends Resource
      *
      * @return string
      */
-    public static function singularLabel()
+    public static function singularLabel(): string
+    {
+        return trans_choice('Platforms', 1);
+    }
+
+    /**
+     * Get the logical group associated with the resource.
+     *
+     * @return string
+     */
+    public static function group()
     {
         return trans_choice('Platforms', 1);
     }

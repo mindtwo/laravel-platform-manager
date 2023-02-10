@@ -4,11 +4,10 @@ namespace mindtwo\LaravelPlatformManager\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
+use mindtwo\LaravelAutoCreateUuid\AutoCreateUuid;
 use mindtwo\LaravelPlatformManager\Builders\PlatformBuilder;
 
 /**
@@ -23,13 +22,11 @@ use mindtwo\LaravelPlatformManager\Builders\PlatformBuilder;
  * @property string|null $logo_file
  * @property string|null $primary_color
  * @property array|null $additional_hostnames
- * @property Collection $courses
- * @property Collection $instructors
- * @property Collection $users
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  *
+ * @method static query()
  * @method static visible()
  * @method static main()
  * @method static matchHostname()
@@ -37,7 +34,9 @@ use mindtwo\LaravelPlatformManager\Builders\PlatformBuilder;
 class Platform extends Model
 {
     use SoftDeletes;
-    use HasUuids;
+    use AutoCreateUuid;
+
+    protected static string $authTokenModel = AuthToken::class;
 
     /**
      * The attributes that should be cast.
@@ -70,27 +69,44 @@ class Platform extends Model
     }
 
     /**
-     * Begin querying the model.
-     *
-     * @return PlatformBuilder|Builder
+     * @param $query
+     * @return PlatformBuilder
      */
-    public static function query(): PlatformBuilder|Builder
-    {
-        return parent::query();
-    }
-
     public function newEloquentBuilder($query): PlatformBuilder
     {
         return new PlatformBuilder($query);
     }
 
     /**
-     * Get the columns that should receive a unique identifier.
-     *
-     * @return array
+     * @return self
      */
-    public function uniqueIds()
+    public static function fromRequest(): self
     {
-        return ['uuid'];
+        // Todo: get platform from api request token
+        return self::firstOrFail();
+    }
+
+    public function getLogoUrlAttribute(): string
+    {
+        return $this->logo_file ? asset('storage/'.$this->logo_file) : '';
+    }
+
+    /**
+     * @param  Builder  $query
+     * @param  string  $hostname
+     * @return Builder
+     */
+    public static function scopeByHostname(Builder $query, string $hostname): Builder
+    {
+        return self::query()->where('hostname', $hostname);
+    }
+
+    /**
+     * @param  string  $token
+     * @return self|null
+     */
+    public static function resolveByPublicAuthToken(string $token): self|null
+    {
+        return self::$authTokenModel::query()->where('token', $token)->with(['platform'])->first()?->platform;
     }
 }

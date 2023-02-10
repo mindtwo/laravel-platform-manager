@@ -26,7 +26,7 @@ class LaravelPlatformManagerProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->mergeConfigFrom(__DIR__ . '/../../config/platform-resolver.php', 'platform-resolver');
+        $this->mergeConfigFrom(__DIR__.'/../../config/platform-resolver.php', 'platform-resolver');
 
         $this->app->scoped(PlatformResolver::class, function ($app) {
             $request = $app->make(Request::class);
@@ -42,10 +42,10 @@ class LaravelPlatformManagerProvider extends ServiceProvider
      */
     protected function publishConfig()
     {
-        $configPath = __DIR__ . '/../../config/platform-resolver.php';
+        $configPath = __DIR__.'/../../config/platform-resolver.php';
 
         $this->publishes([
-            $configPath => config_path('platform-resolver.php')
+            $configPath => config_path('platform-resolver.php'),
         ], 'config');
     }
 
@@ -61,7 +61,7 @@ class LaravelPlatformManagerProvider extends ServiceProvider
         }
 
         $this->publishes([
-            __DIR__.'/../../database/migrations/create_platforms_table.php.stub' =>  database_path('migrations/' . date('Y_m_d_His', time()) . '_create_platforms_table.php'),
+            __DIR__.'/../../database/migrations/create_platforms_table.php.stub' => database_path('migrations/'.date('Y_m_d_His', time()).'_create_platforms_table.php'),
         ], 'migrations');
     }
 }

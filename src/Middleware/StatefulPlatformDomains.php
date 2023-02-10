@@ -4,7 +4,6 @@ namespace mindtwo\LaravelPlatformManager\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use mindtwo\LaravelPlatformManager\Services\PlatformResolver;
 
 /**
@@ -29,11 +28,11 @@ class StatefulPlatformDomains
         $stateful = config('sanctum.stateful', []);
         $currentPlatform = $this->platformResolver->getCurrentPlatform();
 
-        if (!empty($currentPlatform) && isset($currentPlatform->hostname)) {
+        if (! empty($currentPlatform) && isset($currentPlatform->hostname)) {
             $statefulDomains = collect([
                 $currentPlatform->hostname,
                 ...$stateful,
-                ...$currentPlatform->additional_hostnames ?? []
+                ...$currentPlatform->additional_hostnames ?? [],
             ])
                 ->map(fn ($item) => trim($item))
                 ->unique()

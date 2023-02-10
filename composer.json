@@ -23,10 +23,11 @@
         "illuminate/database": "^9.0",
         "illuminate/console": "^9.0",
         "illuminate/http": "^9.0",
-        "mindtwo/native-enum": "^1.7"
+        "mindtwo/native-enum": "^1.7",
+        "mindtwo/laravel-auto-create-uuid": "^2.5"
     },
     "require-dev": {
-        "laravel/pint": "^1.2"
+        "laravel/pint": "^1.4"
     },
     "minimum-stability": "dev",
     "prefer-stable": true,

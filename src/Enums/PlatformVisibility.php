@@ -5,7 +5,11 @@ namespace mindtwo\LaravelPlatformManager\Enums;
 use mindtwo\NativeEnum\BaseEnum;
 use mindtwo\NativeEnum\Contracts\LocalizedEnum;
 
-// scan:ignore
+/**
+ * @method static static Public()
+ * @method static static Private()
+ * @method static static Protected()
+ */
 enum PlatformVisibility: int implements LocalizedEnum
 {
     use BaseEnum;
