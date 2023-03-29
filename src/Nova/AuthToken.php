@@ -55,14 +55,14 @@ abstract class AuthToken extends Resource
     {
         return [
             ID::make(__('ID'), 'id')->sortable(),
-            BelongsTo::make(__('Platform'), 'platform', $this->getPlatformNovaResource())->sortable()->rules(['required']),
+            BelongsTo::make(trans_choice('Platforms', 1), 'platform', $this->getPlatformNovaResource())->sortable()->rules(['required']),
             Select::make(__('Type'), 'type')
                 ->options(AuthTokenTypeEnum::asSelectArray())
                 ->displayUsingLabels()->sortable(),
             Text::make(__('Description'), 'description')->sortable()->rules(['required', 'max:255']),
 
             new Panel(__('Readonly (auto populated fields)'), [
-                BelongsTo::make(__('User'), 'user', $this->getUserNovaResource())->nullable()->sortable()->readonly(),
+                BelongsTo::make(trans_choice('Users', 1), 'user', $this->getUserNovaResource())->nullable()->sortable()->readonly(),
                 Text::make(__('Token'), 'token')->sortable()->readonly()->hideFromIndex(),
             ]),
         ];
