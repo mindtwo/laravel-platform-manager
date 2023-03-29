@@ -15,8 +15,8 @@ return new class extends Migration {
         if (! Schema::hasTable('auth_tokens')) {
             Schema::create('auth_tokens', function (Blueprint $table) {
                 $table->id();
-                $table->foreignIdFor(\Domain\User\Models\User::class)->nullable();
-                $platform = $table->foreignIdFor(config('platform-resolver.model');
+                $table->foreignIdFor(config('auth.providers.users.model'))->nullable();
+                $platform = $table->foreignIdFor(config('platform-resolver.model'));
                 $table->smallInteger('type');
                 $table->string('description')->nullable();
                 $token = $table->string('token', 75)->unique();
