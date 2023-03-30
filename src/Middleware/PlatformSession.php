@@ -31,10 +31,18 @@ class PlatformSession
         if (! empty($currentPlatform) && isset($currentPlatform->hostname)) {
             config([
                 'session.domain' => $currentPlatform->hostname,
-                'session.cookie' => Str::slug($currentPlatform->name, '_').Str::slug(config('app.name'), '_').'_session',
+                'session.cookie' => $this->getCookieName($currentPlatform),
             ]);
         }
 
         return $next($request);
+    }
+
+    private function getCookieName($platform)
+    {
+        $platformSlug = Str::slug($platform->name, '_');
+        $appSlug = Str::slug(config('app.name'), '_');
+
+        return join('_', [$platformSlug, $appSlug, 'session']);
     }
 }
