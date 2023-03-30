@@ -14,8 +14,8 @@ use mindtwo\LaravelPlatformManager\Builders\PlatformBuilder;
  * @property int $id
  * @property string $uuid
  * @property int|null $owner_id
- * @property int|null $is_main
- * @property int|null $visibility
+ * @property boolean|null $is_main
+ * @property boolean|null $visibility
  * @property string|null $name
  * @property string|null $email
  * @property string|null $hostname
@@ -56,14 +56,21 @@ class Platform extends Model
      */
     protected static function booted()
     {
-        static::saving(function ($platform) {
-            if ($platform->is_main) {
+        static::saving(function (Platform $platform) {
+            /** @var Platform|null $currentPlatform */
+            $currentPlatform = DB::table((new self)->getTable())->where('is_main', true)->first();
+
+            if ($platform->is_main && $currentPlatform?->id !== $platform->id) {
                 DB::table((new self)->getTable())
                     ->where('is_main', true)
                     ->where('id', '!=', $platform->id)
                     ->update([
                         'is_main' => false,
                     ]);
+            }
+
+            if (! $platform->is_main && (empty($currentPlatform) || $currentPlatform->id === $platform->id)) {
+                $platform->is_main = true;
             }
         });
     }
