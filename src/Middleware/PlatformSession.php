@@ -31,7 +31,7 @@ class PlatformSession
         if (! empty($currentPlatform) && isset($currentPlatform->hostname)) {
             config([
                 'session.domain' => $currentPlatform->hostname,
-                'session.cookie' => Str::slug($currentPlatform->name, '_') . '_session',
+                'session.cookie' => Str::slug($currentPlatform->name, '_').Str::slug(config('app.name'), '_').'_session',
             ]);
         }
 
