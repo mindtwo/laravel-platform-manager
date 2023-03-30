@@ -27,9 +27,6 @@ use mindtwo\LaravelPlatformManager\Builders\PlatformBuilder;
  * @property Carbon|null $deleted_at
  *
  * @method static query()
- * @method static visible()
- * @method static main()
- * @method static matchHostname()
  */
 class Platform extends Model
 {
@@ -89,24 +86,5 @@ class Platform extends Model
     public function getLogoUrlAttribute(): string
     {
         return $this->logo_file ? asset('storage/'.$this->logo_file) : '';
-    }
-
-    /**
-     * @param  Builder  $query
-     * @param  string  $hostname
-     * @return Builder
-     */
-    public static function scopeByHostname(Builder $query, string $hostname): Builder
-    {
-        return self::query()->where('hostname', $hostname);
-    }
-
-    /**
-     * @param  string  $token
-     * @return self|null
-     */
-    public static function resolveByPublicAuthToken(string $token): self|null
-    {
-        return self::$authTokenModel::query()->where('token', $token)->with(['platform'])->first()?->platform;
     }
 }

@@ -4,6 +4,7 @@ namespace mindtwo\LaravelPlatformManager\Builders;
 
 use Illuminate\Database\Eloquent\Builder;
 use mindtwo\LaravelPlatformManager\Enums\PlatformVisibility;
+use mindtwo\LaravelPlatformManager\Models\Platform;
 
 class PlatformBuilder extends Builder
 {
@@ -38,5 +39,16 @@ class PlatformBuilder extends Builder
         return $this
             ->where('hostname', $hostname)
             ->orWhere(fn (self $query) => $query->where('additional_hostnames', 'LIKE', "%\"$hostname\"%"));
+    }
+
+    /**
+     * @param  string  $token
+     * @return self|null
+     */
+    public function byPublicAuthToken(string $token): self|null
+    {
+        $platformModel = app(config('platform-resolver.model'));
+
+        return $platformModel::$authTokenModel::query()->where('token', $token)->with(['platform'])->first()?->platform;
     }
 }

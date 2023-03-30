@@ -35,7 +35,7 @@ class PlatformResolver
         $model = app(config('platform-resolver.model'));
 
         if ($this->request->hasHeader('X-Context-Platform-Public-Auth-Token')) {
-            $this->current = $model->resolveByPublicAuthToken($this->request->header('X-Context-Platform-Public-Auth-Token'));
+            $this->current = $model->query()->byPublicAuthToken($this->request->header('X-Context-Platform-Public-Auth-Token'));
         }
 
         // Check for hostname
