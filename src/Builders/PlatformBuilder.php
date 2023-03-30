@@ -2,9 +2,10 @@
 
 namespace mindtwo\LaravelPlatformManager\Builders;
 
+use Illuminate\Contracts\Database\Query\Builder as QueryBuilder;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 use mindtwo\LaravelPlatformManager\Enums\PlatformVisibility;
-use mindtwo\LaravelPlatformManager\Models\Platform;
 
 class PlatformBuilder extends Builder
 {
@@ -47,8 +48,9 @@ class PlatformBuilder extends Builder
      */
     public function byPublicAuthToken(string $token): self|null
     {
-        $platformModel = app(config('platform-resolver.model'));
-
-        return $platformModel::$authTokenModel::query()->where('token', $token)->with(['platform'])->first()?->platform;
+        return $this->whereExists(
+            fn (QueryBuilder $builder) =>
+            $builder->select(DB::raw(1))->from('auth_tokens')->whereColumn('auth_tokens.platform_id', 'platforms.id')->where('auth_tokens.token', $token)
+        );
     }
 }
