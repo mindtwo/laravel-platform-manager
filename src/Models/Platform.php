@@ -82,6 +82,9 @@ class Platform extends Model
     }
 
     /**
+     * Deprecated: Use app()->make(PlatformResolver::class)->getCurrentPlatform() instead.
+     *
+     * @deprecated 1.7.5
      * @return self
      */
     public static function fromRequest(): self
