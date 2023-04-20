@@ -5,7 +5,6 @@ namespace mindtwo\LaravelPlatformManager\Builders;
 use Illuminate\Contracts\Database\Query\Builder as QueryBuilder;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
-use mindtwo\LaravelPlatformManager\Enums\PlatformVisibility;
 
 class PlatformBuilder extends Builder
 {
@@ -26,7 +25,7 @@ class PlatformBuilder extends Builder
      */
     public function visible(): PlatformBuilder
     {
-        return $this->where('visibility', PlatformVisibility::Public());
+        return $this->where('visibility', true);
     }
 
     /**
