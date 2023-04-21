@@ -4,6 +4,7 @@ namespace mindtwo\LaravelPlatformManager\Nova;
 
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\Boolean;
+use Laravel\Nova\Fields\Field;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Image;
 use Laravel\Nova\Fields\Text;
@@ -59,6 +60,9 @@ class Platform extends Resource
         return $this->getBaseFields();
     }
 
+    /**
+     * @return array<int, Field>
+     */
     public function getBaseFields()
     {
         return [
