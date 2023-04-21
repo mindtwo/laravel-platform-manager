@@ -81,18 +81,6 @@ class Platform extends Model
         return new PlatformBuilder($query);
     }
 
-    /**
-     * Deprecated: Use app()->make(PlatformResolver::class)->getCurrentPlatform() instead.
-     *
-     * @deprecated 1.7.5
-     * @return self
-     */
-    public static function fromRequest(): self
-    {
-        // Todo: get platform from api request token
-        return self::firstOrFail();
-    }
-
     public function getLogoUrlAttribute(): string
     {
         return $this->logo_file ? asset('storage/'.$this->logo_file) : '';

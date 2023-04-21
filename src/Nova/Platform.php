@@ -6,9 +6,7 @@ use Illuminate\Http\Request;
 use Laravel\Nova\Fields\Boolean;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Image;
-use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Fields\Text;
-use mindtwo\LaravelPlatformManager\Enums\PlatformVisibility;
 use mindtwo\LaravelPlatformManager\Models\Platform as PlatformModel;
 
 class Platform extends Resource
@@ -66,10 +64,8 @@ class Platform extends Resource
         return [
             ID::make(__('ID'), 'id')->sortable(),
             Boolean::make(__('Main'), 'is_main'),
-            Select::make(__('Visibility'), 'visibility')
-                ->options(PlatformVisibility::asSelectArray())
-                ->displayUsingLabels()
-                ->rules(['required']),
+            Boolean::make(__('Visibility'), 'visibility'),
+
             Text::make(__('Name'), 'name')->sortable()->rules(['required', 'max:255']),
             Text::make(__('Email'), 'email')->sortable()->rules(['required', 'max:255']),
             Text::make(__('Hostname'), 'hostname')->sortable()->rules(['max:255']),

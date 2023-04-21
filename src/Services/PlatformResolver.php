@@ -2,7 +2,10 @@
 
 namespace mindtwo\LaravelPlatformManager\Services;
 
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use mindtwo\LaravelPlatformManager\Enums\AuthTokenTypeEnum;
+use mindtwo\LaravelPlatformManager\Models\AuthToken;
 use mindtwo\LaravelPlatformManager\Models\Platform;
 
 class PlatformResolver
@@ -20,6 +23,37 @@ class PlatformResolver
     }
 
     /**
+     * Check if request is Authenticated via platform auth.
+     * Platform must only be visible. When mode is strict
+     * the hostname is also checked.
+     *
+     * @param AuthTokenTypeEnum $tokenType
+     * @param boolean $strict
+     * @return boolean
+     */
+    public function checkAuth(AuthTokenTypeEnum $tokenType, bool $strict = false): bool
+    {
+        if (null !== ($token = $this->request->header($tokenType->getHeaderName()))) {
+            return AuthToken::query()
+                ->where([
+                    'token' => $token,
+                    'type' => $tokenType(),
+                ])
+                ->whereHas('platform', function (Builder $query) use ($strict) {
+                    $query
+                        ->when(
+                            $strict,
+                            fn ($query) => $query->where('hostname', $this->request->getHost())
+                        )
+                        ->where('visibility', true);
+                })
+                ->exists();
+        }
+
+        return false;
+    }
+
+    /**
      * Get current Platform. Return type is your configured
      * eloquent platform model class. See: config('platform-resolver.model')
      *
@@ -34,8 +68,12 @@ class PlatformResolver
         /** @var Platform $model */
         $model = app(config('platform-resolver.model'));
 
-        if ($this->request->hasHeader('X-Context-Platform-Public-Auth-Token')) {
+        if (($headerName = AuthTokenTypeEnum::Public->getHeaderName()) && $this->request->hasHeader($headerName)) {
             $this->current = $model->query()->byPublicAuthToken($this->request->header('X-Context-Platform-Public-Auth-Token'))->first();
+        }
+
+        if (($headerName = AuthTokenTypeEnum::Secret->getHeaderName()) && $this->request->hasHeader($headerName)) {
+            $this->current = $model->query()->bySecretAuthToken($this->request->header($headerName))->first();
         }
 
         // Check for hostname
