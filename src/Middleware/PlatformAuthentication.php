@@ -4,7 +4,9 @@ namespace mindtwo\LaravelPlatformManager\Middleware;
 
 use Closure;
 use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
 use mindtwo\LaravelPlatformManager\Enums\AuthTokenTypeEnum;
 use mindtwo\LaravelPlatformManager\Models\AuthToken;
@@ -23,43 +25,25 @@ class PlatformAuthentication
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure(\Illuminate\Http\Request): (\Illuminate\Http\Response|\Illuminate\Http\RedirectResponse)  $next
-     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
+     * @param Request $request
+     * @param Closure $next
+     * @param string|integer $type
+     * @return RedirectResponse|Response
      */
-    public function handle(Request $request, Closure $next, string $type = 'public')
+    public function handle(Request $request, Closure $next, string|int $type)
     {
-        if (!in_array($type, ['public', 'secret'])) {
-            throw new \Exception("Token type '$type' is invalid. Valid types are 'public' or 'secret'", 1);
-        }
+        $tokenType = AuthTokenTypeEnum::instance($type);
 
-        $tokenHeaderName = $type === 'secret' ? 'X-Context-Platform-Auth-Token' : 'X-Context-Platform-Public-Auth-Token';
-
-        $platformToken = $request->header($tokenHeaderName, null);
-        $platformHost = $request->header('X-Platform-Host', null);
+        $platformToken = $request->header($tokenType->getHeaderName(), null);
 
         // check if required headers are set
-        if ($platformToken === null || $platformHost === null) {
+        if ($platformToken === null) {
             response()->json(['message' => 'Unauthenticated. Missing required headers.'], 401)->send();
             die;
         }
 
-        $tokenTypeValue = $type === 'secret' ? AuthTokenTypeEnum::Secret() : AuthTokenTypeEnum::Public();
         // check if auth token is valid
-        $tokenValid = AuthToken::query()
-            ->where([
-                'token' => $platformToken,
-                'type' => $tokenTypeValue,
-            ])
-            ->whereHas('platform', function (Builder $query) use ($platformHost) {
-                $query->where([
-                    'hostname' => $platformHost,
-                    'visibility' => true,
-                ]);
-            })
-            ->exists();
-
-        if (!$tokenValid) {
+        if (!$this->platformResolver->checkAuth($tokenType)) {
             response()->json(['message' => 'Unauthenticated. Check provided credentials.'], 401)->send();
             die;
         }

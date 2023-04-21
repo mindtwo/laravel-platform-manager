@@ -5,6 +5,7 @@ namespace mindtwo\LaravelPlatformManager\Builders;
 use Illuminate\Contracts\Database\Query\Builder as QueryBuilder;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
+use mindtwo\LaravelPlatformManager\Enums\AuthTokenTypeEnum;
 
 class PlatformBuilder extends Builder
 {
@@ -49,7 +50,25 @@ class PlatformBuilder extends Builder
     {
         return $this->whereExists(
             fn (QueryBuilder $builder) =>
-            $builder->select(DB::raw(1))->from('auth_tokens')->whereColumn('auth_tokens.platform_id', 'platforms.id')->where('auth_tokens.token', $token)
+            $builder->select(DB::raw(1))->from('auth_tokens')
+                ->whereColumn('auth_tokens.platform_id', 'platforms.id')
+                ->where('auth_tokens.token', $token)
+                ->where('auth_tokens.type', AuthTokenTypeEnum::Public())
+        );
+    }
+
+    /**
+     * @param  string  $token
+     * @return self|null
+     */
+    public function bySecretAuthToken(string $token): self|null
+    {
+        return $this->whereExists(
+            fn (QueryBuilder $builder) =>
+            $builder->select(DB::raw(1))->from('auth_tokens')
+                ->whereColumn('auth_tokens.platform_id', 'platforms.id')
+                ->where('auth_tokens.token', $token)
+                ->where('auth_tokens.type', AuthTokenTypeEnum::Secret())
         );
     }
 }
