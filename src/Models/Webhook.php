@@ -13,6 +13,7 @@ use mindtwo\LaravelPlatformManager\Builders\WebhookBuilder;
  * @property string $uuid
  * @property int|null $platform_id
  * @property string|null $hook
+ * @property bool $active
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  *
@@ -31,6 +32,10 @@ class Webhook extends Model
         'hook',
         'active',
         'platform_id',
+    ];
+
+    protected $casts = [
+        'active' => 'bool',
     ];
 
     /**

@@ -86,6 +86,46 @@ it('can activate or deactivate webhooks', function () {
     get($url)->assertStatus(404);
 });
 
+it('can activate or deactivate single webhooks', function () {
+    $url = config('platform-resolver.webhooks.endpoint', '/v1/webhooks');
+    configureTestHook();
+    $webhook = Webhook::first();
+
+    expect($webhook->active)->toBeTrue();
+
+    $test = createPlatformAndToken();
+    $token = $test['token'];
+
+    post($url, [
+        'hook' => 'example',
+        'data' => json_encode([
+            'foo' => 'bar',
+        ]),
+    ], [
+        AuthTokenTypeEnum::Secret->getHeaderName() => $token,
+    ])
+    ->assertStatus(200)
+    ->assertJson(function (AssertableJson $json) {
+        return $json->hasAll(['response', 'message'])->where('response', null);
+    });
+
+    $webhook->update([
+        'active' => false,
+    ]);
+
+    post($url, [
+        'hook' => 'example',
+        'data' => json_encode([
+            'foo' => 'bar',
+        ]),
+    ], [
+        AuthTokenTypeEnum::Secret->getHeaderName() => $token,
+    ])
+    ->assertStatus(404);
+
+    expect($webhook->active)->toBeFalse();
+});
+
 it('can store webhook requests in DB', function () {
     configureTestHook();
 

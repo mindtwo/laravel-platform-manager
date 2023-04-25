@@ -46,6 +46,10 @@ class PushToWebhook implements ShouldQueue
         $host = $this->platform->hostname;
 
         $config = $this->platform->webhookConfigurations()->where('hook', $this->hook)->first();
+        if ($config === null) {
+            return;
+        }
+
         $url = $config->url;
 
         $response = Http::withHeaders([

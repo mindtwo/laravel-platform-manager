@@ -11,6 +11,9 @@ use mindtwo\LaravelPlatformManager\Middleware\PlatformAuthentication;
 Route::name('webhooks.')->group(function () {
     $url = config('platform-resolver.webhooks.endpoint', '/v1/webhooks');
 
-    Route::get($url, [WebhookController::class, 'index'])->middleware([EnsureWebhooksAreEnabled::class]);
+    if (config('app.env') == 'testing') {
+        Route::get($url, [WebhookController::class, 'index'])->middleware([EnsureWebhooksAreEnabled::class]);
+    }
+
     Route::post($url, [WebhookController::class, 'store'])->middleware([EnsureWebhooksAreEnabled::class, PlatformAuthentication::class.':secret']);
 });
