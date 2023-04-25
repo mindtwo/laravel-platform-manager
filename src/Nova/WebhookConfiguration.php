@@ -8,15 +8,15 @@ use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Resource;
-use mindtwo\LaravelPlatformManager\Models\Webhook as WebhookModel;
+use mindtwo\LaravelPlatformManager\Models\WebhookConfiguration as WebhookConfigurationModel;
 use mindtwo\LaravelPlatformManager\Nova\Filters\PlatformFilter;
 
-abstract class Webhook extends Resource
+abstract class WebhookConfiguration extends Resource
 {
     /**
      * The model the resource corresponds to.
      */
-    public static string $model = WebhookModel::class;
+    public static string $model = WebhookConfigurationModel::class;
 
     /**
      * The single value that should be used to represent the resource when being displayed.
