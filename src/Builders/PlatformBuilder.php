@@ -11,8 +11,6 @@ class PlatformBuilder extends Builder
 {
     /**
      * Only platforms with frontend
-     *
-     * @return PlatformBuilder
      */
     public function isMain(): PlatformBuilder
     {
@@ -21,8 +19,6 @@ class PlatformBuilder extends Builder
 
     /**
      * Only visible platforms
-     *
-     * @return PlatformBuilder
      */
     public function visible(): PlatformBuilder
     {
@@ -31,9 +27,6 @@ class PlatformBuilder extends Builder
 
     /**
      * Filter platforms by their hostname
-     *
-     * @param  string  $hostname
-     * @return PlatformBuilder
      */
     public function byHostname(string $hostname): PlatformBuilder
     {
@@ -42,30 +35,20 @@ class PlatformBuilder extends Builder
             ->orWhere(fn (self $query) => $query->where('additional_hostnames', 'LIKE', "%\"$hostname\"%"));
     }
 
-    /**
-     * @param  string  $token
-     * @return self|null
-     */
     public function byPublicAuthToken(string $token): self|null
     {
         return $this->whereExists(
-            fn (QueryBuilder $builder) =>
-            $builder->select(DB::raw(1))->from('auth_tokens')
+            fn (QueryBuilder $builder) => $builder->select(DB::raw(1))->from('auth_tokens')
                 ->whereColumn('auth_tokens.platform_id', 'platforms.id')
                 ->where('auth_tokens.token', $token)
                 ->where('auth_tokens.type', AuthTokenTypeEnum::Public())
         );
     }
 
-    /**
-     * @param  string  $token
-     * @return self|null
-     */
     public function bySecretAuthToken(string $token): self|null
     {
         return $this->whereExists(
-            fn (QueryBuilder $builder) =>
-            $builder->select(DB::raw(1))->from('auth_tokens')
+            fn (QueryBuilder $builder) => $builder->select(DB::raw(1))->from('auth_tokens')
                 ->whereColumn('auth_tokens.platform_id', 'platforms.id')
                 ->where('auth_tokens.token', $token)
                 ->where('auth_tokens.type', AuthTokenTypeEnum::Secret())

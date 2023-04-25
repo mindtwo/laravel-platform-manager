@@ -12,8 +12,6 @@ class PlatformResolver
 {
     /**
      * Current platform for host.
-     *
-     * @var Platform|null
      */
     private ?Platform $current = null;
 
@@ -26,10 +24,6 @@ class PlatformResolver
      * Check if request is Authenticated via platform auth.
      * Platform must only be visible. When mode is strict
      * the hostname is also checked.
-     *
-     * @param AuthTokenTypeEnum $tokenType
-     * @param boolean $strict
-     * @return boolean
      */
     public function checkAuth(AuthTokenTypeEnum $tokenType, bool $strict = false): bool
     {

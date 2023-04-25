@@ -3,8 +3,8 @@
 namespace mindtwo\LaravelPlatformManager\Models;
 
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 use mindtwo\LaravelAutoCreateUuid\AutoCreateUuid;
@@ -14,8 +14,8 @@ use mindtwo\LaravelPlatformManager\Builders\PlatformBuilder;
  * @property int $id
  * @property string $uuid
  * @property int|null $owner_id
- * @property boolean|null $is_main
- * @property boolean|null $visibility
+ * @property bool|null $is_main
+ * @property bool|null $visibility
  * @property string|null $name
  * @property string|null $email
  * @property string|null $hostname
@@ -72,10 +72,11 @@ class Platform extends Model
         });
     }
 
-    /**
-     * @param $query
-     * @return PlatformBuilder
-     */
+    public function webhooks(): HasMany
+    {
+        return $this->hasMany(Webhook::class, 'platform_id');
+    }
+
     public function newEloquentBuilder($query): PlatformBuilder
     {
         return new PlatformBuilder($query);

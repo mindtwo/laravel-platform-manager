@@ -14,8 +14,6 @@ class Platform extends Resource
 {
     /**
      * The model the resource corresponds to.
-     *
-     * @var string
      */
     public static string $model = PlatformModel::class;
 
@@ -44,15 +42,12 @@ class Platform extends Resource
 
     /**
      * Default sorting column
-     *
-     * @var string
      */
     public static string $defaultSort = 'id';
 
     /**
      * Get the fields displayed by the resource.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return array
      */
     public function fields(Request $request)
@@ -85,7 +80,6 @@ class Platform extends Resource
     /**
      * Get the cards available for the request.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return array
      */
     public function cards(Request $request)
@@ -96,7 +90,6 @@ class Platform extends Resource
     /**
      * Get the filters available for the resource.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return array
      */
     public function filters(Request $request)
@@ -107,7 +100,6 @@ class Platform extends Resource
     /**
      * Get the lenses available for the resource.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return array
      */
     public function lenses(Request $request)
@@ -118,7 +110,6 @@ class Platform extends Resource
     /**
      * Get the actions available for the resource.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return array
      */
     public function actions(Request $request)
@@ -128,8 +119,6 @@ class Platform extends Resource
 
     /**
      * Get the displayable label of the resource.
-     *
-     * @return string
      */
     public static function label(): string
     {
@@ -138,8 +127,6 @@ class Platform extends Resource
 
     /**
      * Get the displayable singular label of the resource.
-     *
-     * @return string
      */
     public static function singularLabel(): string
     {

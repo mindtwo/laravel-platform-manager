@@ -17,6 +17,8 @@ class LaravelPlatformManagerProvider extends ServiceProvider
     {
         $this->publishConfig();
         $this->publishMigration();
+
+        $this->loadRoutesFrom(__DIR__.'/../../routes/webhooks.php');
     }
 
     /**
@@ -43,10 +45,12 @@ class LaravelPlatformManagerProvider extends ServiceProvider
     protected function publishConfig()
     {
         $configPath = __DIR__.'/../../config/platform-resolver.php';
+        $hookPath = __DIR__.'/../../config/webhooks.php';
 
         $this->publishes([
             $configPath => config_path('platform-resolver.php'),
-        ], 'config');
+            $hookPath => config_path('webhooks.php'),
+        ], ['config', 'platform-resolver']);
     }
 
     /**
@@ -61,8 +65,9 @@ class LaravelPlatformManagerProvider extends ServiceProvider
         }
 
         $this->publishes([
-            __DIR__.'/../../database/migrations/create_platforms_table.php.stub' => database_path('migrations/'.date('Y_m_d_His', time()).'_create_platforms_table.php'),
-            __DIR__.'/../../database/migrations/create_auth_tokens_table.php.stub' => database_path('migrations/'.date('Y_m_d_His', time()).'_create_auth_tokens_table.php'),
-        ], 'migrations');
+            __DIR__.'/../../database/migrations/create_platforms_table.php' => database_path('migrations/'.date('Y_m_d_His', time()).'_create_platforms_table.php'),
+            __DIR__.'/../../database/migrations/create_auth_tokens_table.php' => database_path('migrations/'.date('Y_m_d_His', time()).'_create_auth_tokens_table.php'),
+            __DIR__.'/../../database/migrations/create_webhooks_table.php' => database_path('migrations/'.date('Y_m_d_His', time()).'_create_webhooks_table.php'),
+        ], ['migrations', 'platform-resolver']);
     }
 }

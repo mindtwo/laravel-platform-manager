@@ -17,8 +17,6 @@ abstract class AuthToken extends Resource
 {
     /**
      * The model the resource corresponds to.
-     *
-     * @var string
      */
     public static string $model = AuthTokenModel::class;
 
@@ -47,9 +45,6 @@ abstract class AuthToken extends Resource
 
     /**
      * Get the fields displayed by the resource.
-     *
-     * @param  Request  $request
-     * @return array
      */
     public function fields(Request $request): array
     {
@@ -68,14 +63,8 @@ abstract class AuthToken extends Resource
         ];
     }
 
-    /**
-     * @return string
-     */
     abstract public function getUserNovaResource(): string;
 
-    /**
-     * @return string
-     */
     public function getPlatformNovaResource(): string
     {
         return Platform::class;
@@ -83,9 +72,6 @@ abstract class AuthToken extends Resource
 
     /**
      * Get the cards available for the request.
-     *
-     * @param  Request  $request
-     * @return array
      */
     public function cards(Request $request): array
     {
@@ -94,9 +80,6 @@ abstract class AuthToken extends Resource
 
     /**
      * Get the filters available for the resource.
-     *
-     * @param  Request  $request
-     * @return array
      */
     public function filters(Request $request): array
     {
@@ -107,9 +90,6 @@ abstract class AuthToken extends Resource
 
     /**
      * Get the lenses available for the resource.
-     *
-     * @param  Request  $request
-     * @return array
      */
     public function lenses(Request $request): array
     {
@@ -118,9 +98,6 @@ abstract class AuthToken extends Resource
 
     /**
      * Get the actions available for the resource.
-     *
-     * @param  Request  $request
-     * @return array
      */
     public function actions(Request $request): array
     {
@@ -129,8 +106,6 @@ abstract class AuthToken extends Resource
 
     /**
      * Get the displayable label of the resource.
-     *
-     * @return string
      */
     public static function label(): string
     {
@@ -139,8 +114,6 @@ abstract class AuthToken extends Resource
 
     /**
      * Get the displayable singular label of the resource.
-     *
-     * @return string
      */
     public static function singularLabel(): string
     {

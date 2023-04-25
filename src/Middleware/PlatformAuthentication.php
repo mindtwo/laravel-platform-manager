@@ -3,13 +3,10 @@
 namespace mindtwo\LaravelPlatformManager\Middleware;
 
 use Closure;
-use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Log;
 use mindtwo\LaravelPlatformManager\Enums\AuthTokenTypeEnum;
-use mindtwo\LaravelPlatformManager\Models\AuthToken;
 use mindtwo\LaravelPlatformManager\Services\PlatformResolver;
 
 /**
@@ -25,9 +22,6 @@ class PlatformAuthentication
     /**
      * Handle an incoming request.
      *
-     * @param Request $request
-     * @param Closure $next
-     * @param string|integer $type
      * @return RedirectResponse|Response
      */
     public function handle(Request $request, Closure $next, string|int $type)
@@ -39,13 +33,13 @@ class PlatformAuthentication
         // check if required headers are set
         if ($platformToken === null) {
             response()->json(['message' => 'Unauthenticated. Missing required headers.'], 401)->send();
-            die;
+            exit;
         }
 
         // check if auth token is valid
-        if (!$this->platformResolver->checkAuth($tokenType)) {
+        if (! $this->platformResolver->checkAuth($tokenType)) {
             response()->json(['message' => 'Unauthenticated. Check provided credentials.'], 401)->send();
-            die;
+            exit;
         }
 
         return $next($request);

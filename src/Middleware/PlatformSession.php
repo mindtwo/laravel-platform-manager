@@ -20,7 +20,6 @@ class PlatformSession
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  \Closure(\Illuminate\Http\Request): (\Illuminate\Http\Response|\Illuminate\Http\RedirectResponse)  $next
      * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
      */
@@ -43,6 +42,6 @@ class PlatformSession
         $platformSlug = Str::slug($platform->name, '_');
         $appSlug = Str::slug(config('app.name'), '_');
 
-        return join('_', [$platformSlug, $appSlug, 'session']);
+        return implode('_', [$platformSlug, $appSlug, 'session']);
     }
 }

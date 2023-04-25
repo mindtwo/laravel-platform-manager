@@ -19,21 +19,22 @@
     ],
     "require": {
         "php": "^8.0",
-        "illuminate/support": "^9.0",
-        "illuminate/database": "^9.0",
-        "illuminate/console": "^9.0",
-        "illuminate/http": "^9.0",
         "mindtwo/native-enum": "^1.7",
-        "mindtwo/laravel-auto-create-uuid": "^2.5"
+        "mindtwo/laravel-auto-create-uuid": "^2.5",
+        "laravel/framework": "^9.52"
     },
     "require-dev": {
-        "laravel/pint": "^1.4"
+        "laravel/pint": "^1.4",
+        "orchestra/testbench": "^7.24",
+        "pestphp/pest": "^1.23",
+        "pestphp/pest-plugin-laravel": "^1.4"
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
     "autoload": {
         "psr-4": {
-            "mindtwo\\LaravelPlatformManager\\": "src/"
+            "mindtwo\\LaravelPlatformManager\\": "src/",
+            "mindtwo\\LaravelPlatformManager\\Tests\\": "tests"
         }
     },
     "extra": {
@@ -41,8 +42,12 @@
             "providers": [
                 "mindtwo\\LaravelPlatformManager\\Providers\\LaravelPlatformManagerProvider"
             ],
-            "aliases": {
-            }
+            "aliases": {}
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
         }
     }
 }

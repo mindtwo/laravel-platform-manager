@@ -60,8 +60,6 @@ class AuthToken extends Model
 
     /**
      * Plattform.
-     *
-     * @return BelongsTo
      */
     public function platform(): BelongsTo
     {
@@ -70,8 +68,6 @@ class AuthToken extends Model
 
     /**
      * User.
-     *
-     * @return BelongsTo
      */
     public function user(): BelongsTo
     {
