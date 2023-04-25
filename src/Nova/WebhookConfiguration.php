@@ -50,7 +50,7 @@ abstract class WebhookConfiguration extends Resource
             ID::make(__('ID'), 'id')->sortable(),
 
             Text::make(__('Name'), 'hook')->sortable()->rules(['required']),
-            Text::make(__('Description'), 'description')->rules(['required']),
+            Text::make(__('Description'), 'description'),
 
             Text::make(__('Endpoint'), 'url')->rules(['required', 'max:255']),
             Text::make(__('Auth Token'), 'auth_token')->rules(['required', 'max:255']),

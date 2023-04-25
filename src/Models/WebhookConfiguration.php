@@ -36,23 +36,6 @@ class WebhookConfiguration extends Model
     ];
 
     /**
-     * The "booted" method of the model.
-     *
-     * @return void
-     */
-    protected static function booted()
-    {
-        // prevent creation for hooks that are not predefined
-        static::saved(function (Webhook $webhook) {
-            $availableHooks = array_keys(config('webhooks'));
-
-            if (! in_array($webhook->hook, $availableHooks)) {
-                $webhook->delete();
-            }
-        });
-    }
-
-    /**
      * Platform that received hook call.
      */
     public function platform(): BelongsTo
