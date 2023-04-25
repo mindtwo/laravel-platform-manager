@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\Boolean;
 use Laravel\Nova\Fields\ID;
-use Laravel\Nova\Fields\Text;
+use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Resource;
 use mindtwo\LaravelPlatformManager\Models\Webhook as WebhookModel;
 use mindtwo\LaravelPlatformManager\Nova\Filters\PlatformFilter;
@@ -50,7 +50,7 @@ abstract class Webhook extends Resource
             ID::make(__('ID'), 'id')->sortable(),
 
             Boolean::make(__('Active'), 'active'),
-            Text::make(__('Name'), 'hook')->sortable()->rules(['required', 'max:255']),
+            Select::make(__('Name'), 'hook')->sortable()->options(array_keys(config('webhooks')))->rules(['required', 'max:255']),
 
             BelongsTo::make(trans_choice('Platforms', 1), 'platform', $this->getPlatformNovaResource())->sortable()->rules(['required']),
 
