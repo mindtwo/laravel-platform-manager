@@ -13,13 +13,14 @@ return new class extends Migration
      */
     public function up()
     {
-        if (! Schema::hasTable('webhooks')) {
-            Schema::create('webhooks', function (Blueprint $table) {
+        if (! Schema::hasTable('webhook_configurations')) {
+            Schema::create('webhook_configurations', function (Blueprint $table) {
                 $table->id();
                 $table->uuid();
 
                 $hook = $table->string('hook');
-                $table->boolean('active')->default(false);
+                $table->string('url');
+                $table->string('auth_token');
 
                 $platform = $table->foreignIdFor(config('platform-resolver.model'), 'platform_id');
 
@@ -37,6 +38,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('webhooks');
+        Schema::dropIfExists('webhook_configurations');
     }
 };

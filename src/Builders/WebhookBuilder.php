@@ -8,15 +8,15 @@ use mindtwo\LaravelPlatformManager\Models\Platform;
 class WebhookBuilder extends Builder
 {
     /**
-     * Only processed webhooks.
+     * Only processed WebhookRequests.
      */
-    public function processed(): WebhookBuilder
+    public function active(): WebhookBuilder
     {
-        return $this->whereNotNull('processed_at');
+        return $this->where('active', true);
     }
 
     /**
-     * Get all webhook requests for a platform.
+     * Get all WebhookRequest for a platform.
      */
     public function forPlatform(Platform $platform): WebhookBuilder
     {

@@ -68,6 +68,8 @@ class LaravelPlatformManagerProvider extends ServiceProvider
             __DIR__.'/../../database/migrations/create_platforms_table.php' => database_path('migrations/'.date('Y_m_d_His', time()).'_create_platforms_table.php'),
             __DIR__.'/../../database/migrations/create_auth_tokens_table.php' => database_path('migrations/'.date('Y_m_d_His', time()).'_create_auth_tokens_table.php'),
             __DIR__.'/../../database/migrations/create_webhooks_table.php' => database_path('migrations/'.date('Y_m_d_His', time()).'_create_webhooks_table.php'),
+            __DIR__.'/../../database/migrations/create_webhook_requests_table.php' => database_path('migrations/'.date('Y_m_d_His', time()).'_create_webhook_requests_table.php'),
+            __DIR__.'/../../database/migrations/create_webhook_logs_table.php' => database_path('migrations/'.date('Y_m_d_His', time()).'_create_webhook_logs_table.php'),
         ], ['migrations', 'platform-resolver']);
     }
 }

@@ -77,6 +77,11 @@ class Platform extends Model
         return $this->hasMany(Webhook::class, 'platform_id');
     }
 
+    public function webhookConfigurations(): HasMany
+    {
+        return $this->hasMany(WebhookConfiguration::class, 'platform_id');
+    }
+
     public function newEloquentBuilder($query): PlatformBuilder
     {
         return new PlatformBuilder($query);

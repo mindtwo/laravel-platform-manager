@@ -12,13 +12,15 @@ use mindtwo\LaravelPlatformManager\Builders\WebhookBuilder;
  * @property int $id
  * @property string $uuid
  * @property int|null $platform_id
- * @property string|null $hook
+ * @property string $hook
+ * @property string $auth_token
+ * @property string $url
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  *
  * @method static query()
  */
-class Webhook extends Model
+class WebhookConfiguration extends Model
 {
     use AutoCreateUuid;
 
