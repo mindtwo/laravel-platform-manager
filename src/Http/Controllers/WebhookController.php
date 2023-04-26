@@ -56,7 +56,6 @@ class WebhookController extends Controller
             Log::error($th->getMessage());
         }
 
-
         // TODO dispatch event
         WebhookReceivedEvent::dispatch($request, $currentPlatform);
 

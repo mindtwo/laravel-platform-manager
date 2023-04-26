@@ -8,6 +8,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use mindtwo\LaravelPlatformManager\Enums\AuthTokenTypeEnum;
 use mindtwo\LaravelPlatformManager\Enums\WebhookTypeEnum;
 use mindtwo\LaravelPlatformManager\Models\Platform;
@@ -65,7 +66,7 @@ class PushToWebhook implements ShouldQueue
             'response' => $response->body(),
             'request' => $this->data,
             'status' => $response->status(),
-            'url' => "{$host}{$url}",
+            'url' => "https://{$host}{$url}",
         ]);
     }
 
