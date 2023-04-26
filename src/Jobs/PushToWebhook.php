@@ -55,6 +55,8 @@ class PushToWebhook implements ShouldQueue
 
         $response = Http::withHeaders([
             AuthTokenTypeEnum::Secret->getHeaderName() => $config->auth_token,
+            'Content-Type' => 'application/json',
+            'Accept' => 'application/json',
         ])->post("https://{$host}{$url}", [
             'hook' => $this->hook,
             'data' => $this->data,
