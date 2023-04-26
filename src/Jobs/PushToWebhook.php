@@ -53,8 +53,8 @@ class PushToWebhook implements ShouldQueue
         $url = $config->url;
 
         $response = Http::withHeaders([
-            AuthTokenTypeEnum::Secret() => $config->auth_token,
-        ])->post("{$host}{$url}", [
+            AuthTokenTypeEnum::Secret->getHeaderName() => $config->auth_token,
+        ])->post("https://{$host}{$url}", [
             'hook' => $this->hook,
             'data' => $this->data,
         ])->throw();
@@ -89,7 +89,7 @@ class PushToWebhook implements ShouldQueue
             'response' => $response ? $response->body() : $exception->getMessage(),
             'request' => $this->data,
             'status' => $response ? $response->status() : 999,
-            'url' => "{$host}{$url}",
+            'url' => "https://{$host}{$url}",
         ]);
     }
 }

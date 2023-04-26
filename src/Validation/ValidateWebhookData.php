@@ -12,12 +12,12 @@ class ValidateWebhookData
      *
      * @return void
      */
-    public function __invoke(Validator $validator, string $hook, string $data)
+    public function __invoke(Validator $validator, string $hook, array $data)
     {
         $rules = config("webhooks.$hook.rules");
 
         $dataValidator = FacadesValidator::make(
-            json_decode($data, true),
+            $data,
             $rules,
         );
 
