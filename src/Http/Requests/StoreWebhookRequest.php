@@ -24,7 +24,7 @@ class StoreWebhookRequest extends FormRequest
     {
         return [
             'hook' => 'required|string|max:255',
-            'data' => 'required|json',
+            'data' => 'required|array',
         ];
     }
 
