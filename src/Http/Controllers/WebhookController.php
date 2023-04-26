@@ -6,6 +6,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
 use mindtwo\LaravelPlatformManager\Enums\WebhookTypeEnum;
 use mindtwo\LaravelPlatformManager\Events\WebhookReceivedEvent;
 use mindtwo\LaravelPlatformManager\Http\Requests\StoreWebhookRequest;
@@ -45,11 +46,16 @@ class WebhookController extends Controller
         $currentPlatform = $this->platformResolver->getCurrentPlatform();
         $hookName = $storeWebhookRequest->validated('hook');
 
-        $request = WebhookRequest::create([
-            'type' => WebhookTypeEnum::Incoming(),
-            'hook' => $storeWebhookRequest->validated('hook'),
-            'response' => $storeWebhookRequest->validated('data'),
-        ]);
+        try {
+            $request = WebhookRequest::create([
+                'type' => WebhookTypeEnum::Incoming(),
+                'hook' => $storeWebhookRequest->validated('hook'),
+                'response' => $storeWebhookRequest->validated('data'),
+            ]);
+        } catch (\Throwable $th) {
+            Log::error($th->getMessage());
+        }
+
 
         // TODO dispatch event
         WebhookReceivedEvent::dispatch($request, $currentPlatform);
