@@ -20,9 +20,6 @@ return [
          * in response.
          */
         'responseCallback' => null,
-
-        // TODO maybe exclude platforms?
-        'exclude' => [],
     ],
 
 ];

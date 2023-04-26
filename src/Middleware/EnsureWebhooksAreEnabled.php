@@ -23,7 +23,6 @@ class EnsureWebhooksAreEnabled
      */
     public function handle(Request $request, Closure $next)
     {
-        // TODO activate/deactivate for platforms
         if (! config('platform-resolver.webhooks.enabled', false)) {
             return response('Not Found', 404);
         }
