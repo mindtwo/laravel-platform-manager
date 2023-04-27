@@ -3,9 +3,9 @@
 namespace mindtwo\LaravelPlatformManager\Nova;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\ID;
-use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Resource;
 use mindtwo\LaravelPlatformManager\Models\WebhookConfiguration as WebhookConfigurationModel;
@@ -52,7 +52,15 @@ abstract class WebhookConfiguration extends Resource
             Text::make(__('Name'), 'hook')->sortable()->rules(['required']),
             Text::make(__('Description'), 'description'),
 
-            Text::make(__('Endpoint'), 'url')->rules(['required', 'max:255']),
+            Text::make(__('Endpoint'), 'url')
+                ->rules(['required', 'max:255'])
+                ->fillUsing(
+                    fn ($request, $model, $attribute, $requestAttribute) => $model->{$attribute} =
+                        Str::of($request->input($attribute))
+                        ->whenEndsWith('/', fn ($str) => Str::of(substr($str, 0, -1)))
+                        ->when(fn ($str) => !str_starts_with($str, '/'), fn ($str) => Str::of("/$str"))
+                        ->toString()
+                ),
             Text::make(__('Auth Token'), 'auth_token')->rules(['required', 'max:255']),
 
             BelongsTo::make(trans_choice('Platforms', 1), 'platform', $this->getPlatformNovaResource())->sortable()->rules(['required']),

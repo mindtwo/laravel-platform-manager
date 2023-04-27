@@ -3,6 +3,7 @@
 namespace mindtwo\LaravelPlatformManager\Nova;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Laravel\Nova\Fields\Boolean;
 use Laravel\Nova\Fields\Field;
 use Laravel\Nova\Fields\ID;
@@ -67,12 +68,33 @@ class Platform extends Resource
 
             Text::make(__('Name'), 'name')->sortable()->rules(['required', 'max:255']),
             Text::make(__('Email'), 'email')->sortable()->rules(['required', 'max:255']),
-            Text::make(__('Hostname'), 'hostname')->sortable()->rules(['max:255']),
+            Text::make(__('Hostname'), 'hostname')
+                ->sortable()
+                ->rules(['max:255'])
+                ->fillUsing(
+                    fn ($request, $model, $attribute, $requestAttribute) => $model->{$attribute} =
+                        Str::of($request->input($attribute))
+                            ->replaceFirst('http://', '')
+                            ->replaceFirst('https://', '')
+                            ->before('/')
+                            ->toString()
+                ),
             Text::make(__('Additional Hostnames'), 'additional_hostnames')
                 ->help(__('Multiple entries can be separated by commas.'))
                 ->hideFromIndex()
                 ->resolveUsing(fn ($item) => collect($item ?? [])->implode(','))
-                ->fillUsing(fn ($request, $model, $attribute, $requestAttribute) => $model->{$attribute} = explode(',', $request->input($attribute) ?? '')),
+                ->fillUsing(
+                    fn ($request, $model, $attribute, $requestAttribute) => $model->{$attribute} =
+                    collect(explode(',', $request->input($attribute) ?? ''))
+                        ->map(
+                            fn ($str) => Str::of($str)
+                            ->replaceFirst('http://', '')
+                            ->replaceFirst('https://', '')
+                            ->before('/')
+                            ->toString()
+                        )
+                        ->toArray()
+                ),
             Image::make(__('Platform Logo'), 'logo_file')->disk(config('media-library.disk_name'))->hideFromIndex(),
         ];
     }
