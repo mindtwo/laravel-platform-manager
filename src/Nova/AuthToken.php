@@ -57,7 +57,7 @@ abstract class AuthToken extends Resource
             Text::make(__('Description'), 'description')->sortable()->rules(['required', 'max:255']),
 
             new Panel(__('Readonly (auto populated fields)'), [
-                BelongsTo::make(trans_choice('Users', 1), 'user', $this->getUserNovaResource())->nullable()->sortable()->readonly(),
+                BelongsTo::make(trans_choice('Users', 1), 'user', $this->getUserNovaResource())->nullable()->sortable()->readonly()->hideFromIndex(),
                 Text::make(__('Token'), 'token')->sortable()->readonly()->hideFromIndex(),
             ]),
         ];
