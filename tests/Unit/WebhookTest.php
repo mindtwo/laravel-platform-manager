@@ -97,7 +97,7 @@ it('can activate or deactivate single webhooks', function () {
     $token = $test['token'];
 
     post($url, [
-        'hook' => 'example',
+        'hook' => $webhook->hook,
         'data' => json_encode([
             'foo' => 'bar',
         ]),
@@ -114,7 +114,7 @@ it('can activate or deactivate single webhooks', function () {
     ]);
 
     post($url, [
-        'hook' => 'example',
+        'hook' => $webhook->hook,
         'data' => json_encode([
             'foo' => 'bar',
         ]),
