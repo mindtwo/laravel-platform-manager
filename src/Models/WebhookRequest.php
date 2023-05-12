@@ -10,9 +10,10 @@ use mindtwo\LaravelPlatformManager\Enums\WebhookTypeEnum;
 /**
  * @property int $id
  * @property string $uuid
- * @property int|null $platform_id
  * @property string|null $hook
  * @property WebhookTypeEnum $type
+ * @property mixed $request
+ * @property mixed $reponse
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  *
