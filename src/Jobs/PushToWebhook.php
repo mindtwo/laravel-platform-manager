@@ -8,7 +8,6 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 use mindtwo\LaravelPlatformManager\Enums\AuthTokenTypeEnum;
 use mindtwo\LaravelPlatformManager\Enums\WebhookTypeEnum;
 use mindtwo\LaravelPlatformManager\Models\Platform;
@@ -17,6 +16,8 @@ use mindtwo\LaravelPlatformManager\Models\WebhookRequest;
 class PushToWebhook implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
+    private ?WebhookRequest $request = null;
 
     /**
      * The number of times the job may be attempted.
@@ -53,6 +54,13 @@ class PushToWebhook implements ShouldQueue
 
         $url = $config->url;
 
+        $this->request = WebhookRequest::create([
+            'type' => WebhookTypeEnum::Outgoing(),
+            'hook' => $this->hook,
+            'request' => $this->data,
+            'url' => "https://{$host}{$url}",
+        ]);
+
         $response = Http::withHeaders([
             AuthTokenTypeEnum::Secret->getHeaderName() => $config->auth_token,
             'Content-Type' => 'application/json',
@@ -62,13 +70,10 @@ class PushToWebhook implements ShouldQueue
             'data' => $this->data,
         ])->throw();
 
-        WebhookRequest::create([
-            'type' => WebhookTypeEnum::Outgoing(),
-            'hook' => $this->hook,
+
+        $this->request->update([
             'response' => $response->body(),
-            'request' => $this->data,
             'status' => $response->status(),
-            'url' => "https://{$host}{$url}",
         ]);
     }
 
@@ -79,20 +84,11 @@ class PushToWebhook implements ShouldQueue
      */
     public function failed(\Throwable $exception)
     {
-        $host = $this->platform->hostname;
-
-        $config = $this->platform->webhookConfigurations()->where('hook', $this->hook)->first();
-        $url = $config->url ?? '';
-
         $response = $exception->response ?? false;
 
-        WebhookRequest::create([
-            'type' => WebhookTypeEnum::Outgoing(),
-            'hook' => $this->hook,
-            'response' => $response ? $response->body() : $exception->getMessage(),
-            'request' => $this->data,
+        $this->request->update([
             'status' => $response ? $response->status() : 999,
-            'url' => "https://{$host}{$url}",
+            'response' => $response ? $response->body() : $exception->getMessage(),
         ]);
     }
 }
