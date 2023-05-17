@@ -50,7 +50,7 @@ class WebhookController extends Controller
             $request = WebhookRequest::create([
                 'type' => WebhookTypeEnum::Incoming(),
                 'hook' => $storeWebhookRequest->validated('hook'),
-                'response' => $storeWebhookRequest->validated('data'),
+                'request' => $storeWebhookRequest->validated('data'),
             ]);
         } catch (\Throwable $th) {
             Log::error($th->getMessage());
@@ -61,6 +61,11 @@ class WebhookController extends Controller
         $callback = config("webhooks.{$hookName}.responseCallback");
         if (is_callable($callback) || gettype($callback) === 'string' && is_callable($callback = new $callback)) {
             $response = $callback($request);
+
+            // TODO add possibilty to censor response data (remove sensitive data)
+            $request->update([
+                'response' => $response,
+            ]);
         }
 
         return response()->json([

@@ -3,34 +3,19 @@
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Testing\Fluent\AssertableJson;
 use mindtwo\LaravelPlatformManager\Enums\AuthTokenTypeEnum;
+use mindtwo\LaravelPlatformManager\Enums\WebhookTypeEnum;
 use mindtwo\LaravelPlatformManager\Models\AuthToken;
 use mindtwo\LaravelPlatformManager\Models\Webhook;
+use mindtwo\LaravelPlatformManager\Models\WebhookRequest;
 use mindtwo\LaravelPlatformManager\Tests\Fake\PlatformFactory;
-use function Pest\Laravel\get;
-use function Pest\Laravel\post;
 
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
-    // activate webhooks in config
-    config([
-        'platform-resolver.webhooks.enabled' => true,
-    ]);
+    $this->refreshDatabase();
 });
 
 it('can only create one hook per platform', function () {
-    config(['webhooks' => [
-        'example' => [
-
-            /**
-             * Validation rules for received data
-             */
-            'rules' => [
-                'foo' => 'required|string',
-            ],
-        ],
-    ]]);
-
     $platform = createPlatformAndToken()['platform'];
 
     $platform->webhooks()->create([
@@ -47,18 +32,6 @@ it('can only create one hook per platform', function () {
 });
 
 it('can only create hooks from config file', function () {
-    config(['webhooks' => [
-        'example' => [
-
-            /**
-             * Validation rules for received data
-             */
-            'rules' => [
-                'foo' => 'required|string',
-            ],
-        ],
-    ]]);
-
     $platform = createPlatformAndToken()['platform'];
 
     $platform->webhooks()->create([
@@ -75,104 +48,113 @@ it('can only create hooks from config file', function () {
 });
 
 it('can activate or deactivate webhooks', function () {
-    $url = config('platform-resolver.webhooks.endpoint', '/v1/webhooks');
+    $url = config('platform-resolver.webhooks.endpoint');
 
-    get($url)->assertStatus(403);
+    $this->get($url)->assertStatus(403);
 
     // activate webhooks in config
     config([
         'platform-resolver.webhooks.enabled' => false,
     ]);
-    get($url)->assertStatus(404);
+    $this->get($url)->assertStatus(404);
 });
 
 it('can activate or deactivate single webhooks', function () {
-    $url = config('platform-resolver.webhooks.endpoint', '/v1/webhooks');
-    configureTestHook();
-    $webhook = Webhook::first();
+    $url = config('platform-resolver.webhooks.endpoint');
+    $webhook = Webhook::create([
+        'active' => true,
+        'hook' => 'example',
+        'platform_id' => 1,
+    ]);
 
     expect($webhook->active)->toBeTrue();
 
     $test = createPlatformAndToken();
     $token = $test['token'];
 
-    post($url, [
-        'hook' => 'example',
-        'data' => json_encode([
-            'foo' => 'bar',
-        ]),
-    ], [
-        AuthTokenTypeEnum::Secret->getHeaderName() => $token,
-    ])
-    ->assertStatus(200)
-    ->assertJson(function (AssertableJson $json) {
-        return $json->hasAll(['response', 'message'])->where('response', null);
-    });
+    $this->postJson(
+        $url,
+        [
+            'hook' => $webhook->hook,
+            'data' => [
+                'foo' => 'bar',
+            ],
+        ],
+        [AuthTokenTypeEnum::Secret->getHeaderName() => $token]
+    )
+    ->assertStatus(200);
 
     $webhook->update([
         'active' => false,
     ]);
 
-    post($url, [
-        'hook' => 'example',
-        'data' => json_encode([
-            'foo' => 'bar',
-        ]),
-    ], [
-        AuthTokenTypeEnum::Secret->getHeaderName() => $token,
-    ])
-    ->assertStatus(404);
+    $this->postJson(
+        $url,
+        [
+            'hook' => $webhook->hook,
+            'data' => [
+                'foo' => 'bar',
+            ],
+        ],
+        [AuthTokenTypeEnum::Secret->getHeaderName() => $token]
+    )->assertStatus(404);
 
     expect($webhook->active)->toBeFalse();
 });
 
 it('can store webhook requests in DB', function () {
-    configureTestHook();
-
     $test = createPlatformAndToken();
-
-    $platform = $test['platform'];
     $token = $test['token'];
 
-    $url = config('platform-resolver.webhooks.endpoint', '/v1/webhooks');
+    $url = config('platform-resolver.webhooks.endpoint');
 
-    post($url, [
-        'hook' => 'example',
-        'data' => json_encode([
-            'foo' => 'bar',
-        ]),
-    ], [
-        AuthTokenTypeEnum::Secret->getHeaderName() => $token,
-    ])
+    $this->postJson(
+        $url,
+        [
+            'hook' => 'example',
+            'data' => [
+                'foo' => 'bar',
+            ],
+        ],
+        [AuthTokenTypeEnum::Secret->getHeaderName() => $token]
+    )
     ->assertStatus(200)
     ->assertJson(function (AssertableJson $json) {
         return $json->hasAll(['response', 'message'])->where('response', null);
     });
 
-    $webhook = Webhook::first();
+    $webhookRequest = WebhookRequest::first();
 
-    expect($webhook->platform->id)->toEqual($platform->id);
+    expect($webhookRequest)->toMatchArray([
+        'hook' => 'example',
+        'type' => WebhookTypeEnum::Incoming(),
+        'request' => [
+            'foo' => 'bar',
+        ],
+        'response' => null,
+    ]);
 });
 
 it('can store webhook requests in DB and call closure afterwards', function () {
-    configureTestHook(function () {
+    config()->set('webhooks.example.responseCallback', function () {
         return [
             'bar' => 'foofoo',
         ];
     });
 
     $token = createPlatformAndToken()['token'];
+    $url = config('platform-resolver.webhooks.endpoint');
 
-    $url = config('platform-resolver.webhooks.endpoint', '/v1/webhooks');
-
-    post($url, [
-        'hook' => 'example',
-        'data' => json_encode([
-            'foo' => 'bar',
-        ]),
-    ], [
-        AuthTokenTypeEnum::Secret->getHeaderName() => $token,
-    ])
+    $this->postJson(
+        $url,
+        [
+            'hook' => 'example',
+            'data' => [
+                'foo' => 'bar',
+            ],
+        ],
+        [AuthTokenTypeEnum::Secret->getHeaderName() => $token]
+    )
     ->assertStatus(200)
     ->assertJson(function (AssertableJson $json) {
         return $json
@@ -180,11 +162,22 @@ it('can store webhook requests in DB and call closure afterwards', function () {
             ->whereNot('response', null)
             ->where('response', ['bar' => 'foofoo']);
     });
+
+    $webhookRequest = WebhookRequest::first();
+    expect($webhookRequest)->toMatchArray([
+        'hook' => 'example',
+        'type' => WebhookTypeEnum::Incoming(),
+        'request' => [
+            'foo' => 'bar',
+        ],
+        'response' => [
+            'bar' => 'foofoo',
+        ],
+    ]);
 });
 
 it('can store webhook requests in DB and call invokeable afterwards', function () {
-    configureTestHook(new class
-    {
+    config()->set('webhooks.example.responseCallback', new class {
         public function __invoke()
         {
             return ['bar' => 'foofoo'];
@@ -193,16 +186,18 @@ it('can store webhook requests in DB and call invokeable afterwards', function (
 
     $token = createPlatformAndToken()['token'];
 
-    $url = config('platform-resolver.webhooks.endpoint', '/v1/webhooks');
+    $url = config('platform-resolver.webhooks.endpoint');
 
-    post($url, [
-        'hook' => 'example',
-        'data' => json_encode([
-            'foo' => 'bar',
-        ]),
-    ], [
-        AuthTokenTypeEnum::Secret->getHeaderName() => $token,
-    ])
+    $this->postJson(
+        $url,
+        [
+            'hook' => 'example',
+            'data' => [
+                'foo' => 'bar',
+            ],
+        ],
+        [AuthTokenTypeEnum::Secret->getHeaderName() => $token]
+    )
     ->assertStatus(200)
     ->assertJson(function (AssertableJson $json) {
         return $json
@@ -210,30 +205,19 @@ it('can store webhook requests in DB and call invokeable afterwards', function (
             ->whereNot('response', null)
             ->where('response', ['bar' => 'foofoo']);
     });
-});
 
-function configureTestHook($callback = null)
-{
-    config(['webhooks' => [
-        'example' => [
-
-            /**
-             * Validation rules for received data
-             */
-            'rules' => [
-                'foo' => 'required|string',
-            ],
-
-            'responseCallback' => $callback,
-        ],
-    ]]);
-
-    Webhook::create([
-        'active' => true,
+    $webhookRequest = WebhookRequest::first();
+    expect($webhookRequest)->toMatchArray([
         'hook' => 'example',
-        'platform_id' => 1,
+        'type' => WebhookTypeEnum::Incoming(),
+        'request' => [
+            'foo' => 'bar',
+        ],
+        'response' => [
+            'bar' => 'foofoo',
+        ],
     ]);
-}
+});
 
 function createPlatformAndToken()
 {
