@@ -68,10 +68,11 @@ class Platform extends Resource
         return [
             ID::make(__('ID'), 'id')->sortable(),
 
+            Boolean::make(__('Active'), 'is_active')
+                ->help(__('Toggle the platforms state to active/inactive. Inactive platforms are not used for matching.')),
+
             Boolean::make(__('Main'), 'is_main')
                 ->help(__('Main platforms are used as fallback when no other platform can be matched via authtoken or hostname.')),
-
-            Boolean::make(__('Visibility'), 'visibility'),
 
             Text::make(__('Name'), 'name')->sortable()->rules(['required', 'max:255']),
 

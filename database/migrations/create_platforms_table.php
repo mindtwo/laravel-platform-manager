@@ -19,7 +19,7 @@ return new class extends Migration
                 $table->uuid('uuid')->unique();
                 $table->foreignIdFor(config('auth.providers.users.model'), 'owner_id')->nullable();
                 $table->boolean('is_main')->default(0);
-                $table->unsignedSmallInteger('visibility')->default(0);
+                $table->unsignedSmallInteger('is_active')->default(0);
                 $table->string('name')->nullable();
                 $table->string('hostname', 50)->nullable()->index();
                 $table->json('additional_hostnames')->nullable();

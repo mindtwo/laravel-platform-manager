@@ -32,7 +32,7 @@ it('can\'t resolve a platform if no main platforms are specified', function () {
 it('can\'t resolve a platform if all are unactive specified', function () {
     $platformResolver = app()->make(PlatformResolver::class);
 
-    (new PlatformFactory())->hidden()->count(5)->create([
+    (new PlatformFactory())->inactive()->count(5)->create([
         'hostname' => 'localhost',
     ]);
 

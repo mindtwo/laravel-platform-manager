@@ -15,7 +15,7 @@ use mindtwo\LaravelPlatformManager\Models\Platform;
 class PlatformBuilder extends Builder
 {
     /**
-     * Only platforms with frontend
+     * Only main platforms
      */
     public function isMain(): self
     {
@@ -23,11 +23,11 @@ class PlatformBuilder extends Builder
     }
 
     /**
-     * Only visible platforms
+     * Only active platforms
      */
-    public function visible(): self
+    public function isActive(): self
     {
-        return $this->where('visibility', true);
+        return $this->where('is_active', true);
     }
 
     /**

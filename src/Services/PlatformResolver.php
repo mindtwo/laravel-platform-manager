@@ -28,7 +28,7 @@ class PlatformResolver
 
     /**
      * Check if request is Authenticated via platform auth.
-     * Platform must only be visible. When mode is strict
+     * Platform only has to be active. When mode is strict
      * the hostname is also checked.
      */
     public function checkAuth(AuthTokenTypeEnum $tokenType, bool $strict = false): bool
@@ -45,7 +45,7 @@ class PlatformResolver
                             $strict,
                             fn ($query) => $query->where('hostname', $this->request->getHost())
                         )
-                        ->where('visibility', true);
+                        ->where('is_active', true);
                 })
                 ->exists();
         }
@@ -64,23 +64,23 @@ class PlatformResolver
         }
 
         if (($headerName = AuthTokenTypeEnum::Public->getHeaderName()) && is_string($token = $this->request->header($headerName))) {
-            $this->current = $this->platformModel::query()->visible()->byPublicAuthToken($token)->first();
+            $this->current = $this->platformModel::query()->isActive()->byPublicAuthToken($token)->first();
         }
 
         if (($headerName = AuthTokenTypeEnum::Secret->getHeaderName()) && is_string($token = $this->request->header($headerName))) {
 
-            $this->current = $this->platformModel::query()->visible()->bySecretAuthToken($token)->first();
+            $this->current = $this->platformModel::query()->isActive()->bySecretAuthToken($token)->first();
         }
 
         // Check for hostname
         if (empty($this->current)) {
-            $this->current = $this->platformModel::query()->visible()->byHostname($this->request->getHost())->first();
+            $this->current = $this->platformModel::query()->isActive()->byHostname($this->request->getHost())->first();
         }
 
         // Fallback primary platform
         if (empty($this->current)) {
             try {
-                $this->current = $this->platformModel::query()->visible()->isMain()->firstOrFail();
+                $this->current = $this->platformModel::query()->isActive()->isMain()->firstOrFail();
             } catch (\Throwable $th) {
                 // TODO custom exception
 
