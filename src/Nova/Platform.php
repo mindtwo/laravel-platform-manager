@@ -74,6 +74,9 @@ class Platform extends Resource
             Boolean::make(__('Main'), 'is_main')
                 ->help(__('Main platforms are used as fallback when no other platform can be matched via authtoken or hostname.')),
 
+            Boolean::make(__('Headless'), 'is_headless')
+                ->help(__('Headless platforms platforms without a frontend provided by this app. Headless platforms may be consumed by other apps or frontends via API.')),
+
             Text::make(__('Name'), 'name')->sortable()->rules(['required', 'max:255']),
 
             Text::make(__('Hostname'), 'hostname')

@@ -16,6 +16,7 @@ use mindtwo\LaravelPlatformManager\Builders\PlatformBuilder;
  * @property int|null $owner_id
  * @property bool $is_main
  * @property bool $is_active
+ * @property bool $is_headless
  * @property string|null $name
  * @property string|null $hostname
  * @property array|null $additional_hostnames
@@ -41,6 +42,7 @@ class Platform extends Model
     protected $casts = [
         'is_main' => 'boolean',
         'is_active' => 'boolean',
+        'is_headless' => 'boolean',
         'additional_hostnames' => 'array',
     ];
 
