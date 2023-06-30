@@ -5,6 +5,7 @@ namespace mindtwo\LaravelPlatformManager\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use mindtwo\LaravelPlatformManager\Models\Platform;
 use mindtwo\LaravelPlatformManager\Services\PlatformResolver;
 
 /**
@@ -27,7 +28,7 @@ class PlatformSession
     {
         $currentPlatform = $this->platformResolver->getCurrentPlatform();
 
-        if (! empty($currentPlatform) && isset($currentPlatform->hostname)) {
+        if (isset($currentPlatform->hostname)) {
             config([
                 'session.domain' => $currentPlatform->hostname,
                 'session.cookie' => $this->getCookieName($currentPlatform),
@@ -37,9 +38,12 @@ class PlatformSession
         return $next($request);
     }
 
-    private function getCookieName($platform)
+    /**
+     * Get the cookie name for the given platform.
+     */
+    private function getCookieName(Platform $platform): string
     {
-        $platformSlug = Str::slug($platform->name, '_');
+        $platformSlug = Str::slug($platform->name ?? '', '_');
         $appSlug = Str::slug(config('app.name'), '_');
 
         return implode('_', [$platformSlug, $appSlug, 'session']);

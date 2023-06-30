@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Http;
 use mindtwo\LaravelPlatformManager\Enums\AuthTokenTypeEnum;
 use mindtwo\LaravelPlatformManager\Enums\WebhookTypeEnum;
 use mindtwo\LaravelPlatformManager\Models\Platform;
+use mindtwo\LaravelPlatformManager\Models\WebhookConfiguration;
 use mindtwo\LaravelPlatformManager\Models\WebhookRequest;
 
 class PushToWebhook implements ShouldQueue
@@ -47,6 +48,7 @@ class PushToWebhook implements ShouldQueue
     {
         $host = $this->platform->hostname;
 
+        /** @var ?WebhookConfiguration $config */
         $config = $this->platform->webhookConfigurations()->where('hook', $this->hook)->first();
         if ($config === null) {
             return;
@@ -54,6 +56,7 @@ class PushToWebhook implements ShouldQueue
 
         $url = $config->url;
 
+        /** @phpstan-ignore-next-line */
         $this->request = WebhookRequest::create([
             'type' => WebhookTypeEnum::Outgoing(),
             'hook' => $this->hook,
@@ -70,7 +73,6 @@ class PushToWebhook implements ShouldQueue
             'data' => $this->data,
         ])->throw();
 
-
         $this->request->update([
             'response' => $response->body(),
             'status' => $response->status(),
@@ -84,6 +86,10 @@ class PushToWebhook implements ShouldQueue
      */
     public function failed(\Throwable $exception)
     {
+        if ($this->request === null) {
+            return;
+        }
+
         $response = $exception->response ?? false;
 
         $this->request->update([

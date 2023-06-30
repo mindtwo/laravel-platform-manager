@@ -63,7 +63,10 @@ class Platform extends Resource
     {
         return [
             ID::make(__('ID'), 'id')->sortable(),
-            Boolean::make(__('Main'), 'is_main'),
+
+            Boolean::make(__('Main'), 'is_main')
+                ->help(__('Main platforms are used as fallback when no other platform can be matched via authtoken or hostname.')),
+
             Boolean::make(__('Visibility'), 'visibility'),
 
             Text::make(__('Name'), 'name')->sortable()->rules(['required', 'max:255']),
@@ -79,22 +82,24 @@ class Platform extends Resource
                             ->before('/')
                             ->toString()
                 ),
+
             Text::make(__('Additional Hostnames'), 'additional_hostnames')
                 ->help(__('Multiple entries can be separated by commas.'))
                 ->hideFromIndex()
-                ->resolveUsing(fn ($item) => collect($item ?? [])->implode(','))
+                ->resolveUsing(fn ($item) => collect($item ?? [])->implode(',')) // @phpstan-ignore-line
                 ->fillUsing(
                     fn ($request, $model, $attribute, $requestAttribute) => $model->{$attribute} =
                     collect(explode(',', $request->input($attribute) ?? ''))
                         ->map(
                             fn ($str) => Str::of($str)
-                            ->replaceFirst('http://', '')
-                            ->replaceFirst('https://', '')
-                            ->before('/')
-                            ->toString()
+                                ->replaceFirst('http://', '')
+                                ->replaceFirst('https://', '')
+                                ->before('/')
+                                ->toString()
                         )
                         ->toArray()
                 ),
+
             Image::make(__('Platform Logo'), 'logo_file')->disk(config('media-library.disk_name'))->hideFromIndex(),
         ];
     }

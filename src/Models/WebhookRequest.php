@@ -3,8 +3,10 @@
 namespace mindtwo\LaravelPlatformManager\Models;
 
 use Carbon\Carbon;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use mindtwo\LaravelPlatformManager\Builders\WebhookBuilder;
 use mindtwo\LaravelPlatformManager\Enums\WebhookTypeEnum;
 
 /**
@@ -16,8 +18,6 @@ use mindtwo\LaravelPlatformManager\Enums\WebhookTypeEnum;
  * @property mixed $reponse
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- *
- * @method static query()
  */
 class WebhookRequest extends Model
 {
@@ -40,11 +40,21 @@ class WebhookRequest extends Model
     /**
      * The attributes that should be cast.
      *
-     * @var array
+     * @var array<string, string>
      */
     protected $casts = [
         'request' => 'json',
         'response' => 'json',
         'type' => WebhookTypeEnum::class,
     ];
+
+    public static function query(): WebhookBuilder|Builder
+    {
+        return parent::query();
+    }
+
+    public function newEloquentBuilder($query): WebhookBuilder
+    {
+        return new WebhookBuilder($query);
+    }
 }

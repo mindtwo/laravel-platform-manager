@@ -3,6 +3,7 @@
 namespace mindtwo\LaravelPlatformManager\Models;
 
 use Carbon\Carbon;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -26,7 +27,7 @@ use mindtwo\LaravelPlatformManager\Builders\PlatformBuilder;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  *
- * @method static query()
+ * @method static PlatformBuilder query()
  */
 class Platform extends Model
 {
@@ -38,7 +39,7 @@ class Platform extends Model
     /**
      * The attributes that should be cast.
      *
-     * @var array
+     * @var array<string, string>
      */
     protected $casts = [
         'is_main' => 'boolean',
@@ -72,6 +73,11 @@ class Platform extends Model
         });
     }
 
+    public function getLogoUrlAttribute(): string
+    {
+        return $this->logo_file ? asset('storage/'.$this->logo_file) : '';
+    }
+
     public function webhooks(): HasMany
     {
         return $this->hasMany(Webhook::class, 'platform_id');
@@ -87,8 +93,8 @@ class Platform extends Model
         return new PlatformBuilder($query);
     }
 
-    public function getLogoUrlAttribute(): string
+    public static function query(): PlatformBuilder|Builder
     {
-        return $this->logo_file ? asset('storage/'.$this->logo_file) : '';
+        return parent::query();
     }
 }

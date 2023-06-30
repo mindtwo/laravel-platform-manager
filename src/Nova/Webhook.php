@@ -50,10 +50,9 @@ abstract class Webhook extends Resource
             ID::make(__('ID'), 'id')->sortable(),
 
             Boolean::make(__('Active'), 'active'),
-            Select::make(__('Name'), 'hook')->sortable()->options(array_keys(config('webhooks')))->rules(['required', 'max:255']),
+            Select::make(__('Name'), 'hook')->sortable()->options(collect(array_keys(config('webhooks')))->toArray())->rules(['required', 'max:255']),
 
             BelongsTo::make(trans_choice('Platforms', 1), 'platform', $this->getPlatformNovaResource())->sortable()->rules(['required']),
-
         ];
     }
 

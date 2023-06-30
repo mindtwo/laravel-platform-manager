@@ -27,7 +27,7 @@ class StatefulPlatformDomains
         $stateful = config('sanctum.stateful', []);
         $currentPlatform = $this->platformResolver->getCurrentPlatform();
 
-        if (! empty($currentPlatform) && isset($currentPlatform->hostname)) {
+        if (isset($currentPlatform->hostname)) {
             $statefulDomains = collect([
                 $currentPlatform->hostname,
                 ...$stateful,

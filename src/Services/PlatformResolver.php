@@ -15,8 +15,14 @@ class PlatformResolver
      */
     private ?Platform $current = null;
 
+    /**
+     * PlatformResolver constructor.
+     *
+     * @param  class-string<Platform>  $platformModel
+     */
     public function __construct(
         protected Request $request,
+        protected string $platformModel,
     ) {
     }
 
@@ -50,34 +56,38 @@ class PlatformResolver
     /**
      * Get current Platform. Return type is your configured
      * eloquent platform model class. See: config('platform-resolver.model')
-     *
-     * @return mixed
      */
-    public function getCurrentPlatform()
+    public function getCurrentPlatform(): Platform
     {
         if (isset($this->current)) {
             return $this->current;
         }
 
-        /** @var Platform $model */
-        $model = app(config('platform-resolver.model'));
+        if (($headerName = AuthTokenTypeEnum::Public->getHeaderName()) && is_string($token = $this->request->header($headerName))) {
+            // $token = $this->request->header($headerName);
 
-        if (($headerName = AuthTokenTypeEnum::Public->getHeaderName()) && $this->request->hasHeader($headerName)) {
-            $this->current = $model->query()->byPublicAuthToken($this->request->header('X-Context-Platform-Public-Auth-Token'))->first();
+            $this->current = $this->platformModel::query()->byPublicAuthToken($token)->first();
         }
 
-        if (($headerName = AuthTokenTypeEnum::Secret->getHeaderName()) && $this->request->hasHeader($headerName)) {
-            $this->current = $model->query()->bySecretAuthToken($this->request->header($headerName))->first();
+        if (($headerName = AuthTokenTypeEnum::Secret->getHeaderName()) && is_string($token = $this->request->header($headerName))) {
+
+            $this->current = $this->platformModel::query()->bySecretAuthToken($token)->first();
         }
 
         // Check for hostname
         if (empty($this->current)) {
-            $this->current = $model->query()->byHostname($this->request->getHost())->first();
+            $this->current = $this->platformModel::query()->byHostname($this->request->getHost())->first();
         }
 
         // Fallback primary platform
         if (empty($this->current)) {
-            $this->current = $model->query()->isMain()->firstOrFail();
+            try {
+                $this->current = $this->platformModel::query()->isMain()->firstOrFail();
+            } catch (\Throwable $th) {
+                // TODO custom exception
+
+                throw $th;
+            }
         }
 
         return $this->current;

@@ -6,7 +6,12 @@ use Illuminate\Contracts\Database\Query\Builder as QueryBuilder;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use mindtwo\LaravelPlatformManager\Enums\AuthTokenTypeEnum;
+use mindtwo\LaravelPlatformManager\Models\Platform;
 
+/**
+ * @method ?Platform first()
+ * @method Platform firstOrFail()
+ */
 class PlatformBuilder extends Builder
 {
     /**
@@ -35,7 +40,7 @@ class PlatformBuilder extends Builder
             ->orWhere(fn (self $query) => $query->where('additional_hostnames', 'LIKE', "%\"$hostname\"%"));
     }
 
-    public function byPublicAuthToken(string $token): self|null
+    public function byPublicAuthToken(string $token): PlatformBuilder
     {
         return $this->whereExists(
             fn (QueryBuilder $builder) => $builder->select(DB::raw(1))->from('auth_tokens')
@@ -45,7 +50,7 @@ class PlatformBuilder extends Builder
         );
     }
 
-    public function bySecretAuthToken(string $token): self|null
+    public function bySecretAuthToken(string $token): PlatformBuilder
     {
         return $this->whereExists(
             fn (QueryBuilder $builder) => $builder->select(DB::raw(1))->from('auth_tokens')

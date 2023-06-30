@@ -30,7 +30,7 @@ class WebhookController extends Controller
 
         $webhooks = WebhookRequest::query()
             ->forPlatform($this->platformResolver->getCurrentPlatform())
-            ->when($request->boolean('processed'), fn ($query) => $query->processed())
+            ->when($request->boolean('active'), fn ($query) => $query->active())
             ->get();
 
         return response()->json([
@@ -47,6 +47,7 @@ class WebhookController extends Controller
         $hookName = $storeWebhookRequest->validated('hook');
 
         try {
+            /** @var WebhookRequest $request */
             $request = WebhookRequest::create([
                 'type' => WebhookTypeEnum::Incoming(),
                 'hook' => $storeWebhookRequest->validated('hook'),
@@ -54,6 +55,8 @@ class WebhookController extends Controller
             ]);
         } catch (\Throwable $th) {
             Log::error($th->getMessage());
+
+            throw $th;
         }
 
         WebhookReceivedEvent::dispatch($request, $currentPlatform);

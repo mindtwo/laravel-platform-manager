@@ -23,13 +23,10 @@ enum AuthTokenTypeEnum: int implements LocalizedEnum
 
     public static function fromString(string $value): self
     {
-        if (! in_array($value, ['secret', 'public'])) {
-            throw new \Exception("Token type '$value' is invalid. Valid types are 'public' or 'secret'", 1);
-        }
-
         return match ($value) {
             'public' => AuthTokenTypeEnum::Public,
             'secret' => AuthTokenTypeEnum::Secret,
+            default => throw new \Exception("Token type '$value' is invalid. Valid types are 'public' or 'secret'", 1),
         };
     }
 

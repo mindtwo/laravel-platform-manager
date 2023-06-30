@@ -33,7 +33,7 @@ class LaravelPlatformManagerProvider extends ServiceProvider
         $this->app->scoped(PlatformResolver::class, function ($app) {
             $request = $app->make(Request::class);
 
-            return new PlatformResolver($request);
+            return new PlatformResolver($request, config('platform-resolver.model', \mindtwo\LaravelPlatformManager\Models\Platform::class));
         });
     }
 
