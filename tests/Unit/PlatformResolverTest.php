@@ -48,6 +48,12 @@ it('can resolve a platform if a main platform is specified', function () {
     $this->assertInstanceOf(Platform::class, $platformResolver->getCurrentPlatform());
 });
 
+it('can resolve a platform via container', function () {
+    (new PlatformFactory())->main()->create();
+
+    $this->assertInstanceOf(Platform::class, app()->make(Platform::class));
+});
+
 it('can resolve the platform with the specified hostname', function () {
     $platformResolver = app()->make(PlatformResolver::class);
 

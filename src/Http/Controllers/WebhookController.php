@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Log;
 use mindtwo\LaravelPlatformManager\Enums\WebhookTypeEnum;
 use mindtwo\LaravelPlatformManager\Events\WebhookReceivedEvent;
 use mindtwo\LaravelPlatformManager\Http\Requests\StoreWebhookRequest;
+use mindtwo\LaravelPlatformManager\Models\Platform;
 use mindtwo\LaravelPlatformManager\Models\Webhook;
 use mindtwo\LaravelPlatformManager\Models\WebhookRequest;
 use mindtwo\LaravelPlatformManager\Services\PlatformResolver;
@@ -41,9 +42,9 @@ class WebhookController extends Controller
     /**
      * Store webhook request.
      */
-    public function store(StoreWebhookRequest $storeWebhookRequest): JsonResponse
+    public function store(StoreWebhookRequest $storeWebhookRequest, Platform $currentPlatform): JsonResponse
     {
-        $currentPlatform = $this->platformResolver->getCurrentPlatform();
+        // $currentPlatform = $this->platformResolver->getCurrentPlatform();
         $hookName = $storeWebhookRequest->validated('hook');
 
         try {

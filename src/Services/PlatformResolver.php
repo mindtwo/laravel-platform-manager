@@ -83,6 +83,9 @@ class PlatformResolver
                 $this->current = $this->platformModel::query()->isActive()->isMain()->firstOrFail();
             } catch (\Throwable $th) {
                 // TODO custom exception
+                // if ($this->request->routeIs('nova.*') && class_exists(\Nova::class)) {
+                //     dd('No platform found. Please create a platform first.');
+                // }
 
                 throw $th;
             }

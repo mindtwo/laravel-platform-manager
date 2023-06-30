@@ -10,11 +10,6 @@ use Illuminate\Http\Request;
  */
 class EnsureWebhooksAreEnabled
 {
-    public function __construct(
-        // protected PlatformResolver $platformResolver,
-    ) {
-    }
-
     /**
      * Handle an incoming request.
      *

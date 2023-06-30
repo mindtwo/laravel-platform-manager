@@ -4,7 +4,7 @@ namespace mindtwo\LaravelPlatformManager\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use mindtwo\LaravelPlatformManager\Services\PlatformResolver;
+use mindtwo\LaravelPlatformManager\Models\Platform;
 
 /**
  * Middleware to add the current Platforms avaiable hostnames to sanctums stateful domains.
@@ -12,7 +12,7 @@ use mindtwo\LaravelPlatformManager\Services\PlatformResolver;
 class StatefulPlatformDomains
 {
     public function __construct(
-        protected PlatformResolver $platformResolver,
+        private Platform $currentPlatform
     ) {
     }
 
@@ -25,13 +25,12 @@ class StatefulPlatformDomains
     public function handle(Request $request, Closure $next)
     {
         $stateful = config('sanctum.stateful', []);
-        $currentPlatform = $this->platformResolver->getCurrentPlatform();
 
-        if (isset($currentPlatform->hostname)) {
+        if (! $this->currentPlatform->is_headless && isset($this->currentPlatform->hostname)) {
             $statefulDomains = collect([
-                $currentPlatform->hostname,
+                $this->currentPlatform->hostname,
                 ...$stateful,
-                ...$currentPlatform->additional_hostnames ?? [],
+                ...$this->currentPlatform->additional_hostnames ?? [],
             ])
                 ->map(fn ($item) => trim($item))
                 ->unique()

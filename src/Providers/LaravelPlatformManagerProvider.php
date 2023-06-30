@@ -2,8 +2,12 @@
 
 namespace mindtwo\LaravelPlatformManager\Providers;
 
+use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
+use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\ServiceProvider;
+use mindtwo\LaravelPlatformManager\Models\Platform;
 use mindtwo\LaravelPlatformManager\Services\PlatformResolver;
 
 class LaravelPlatformManagerProvider extends ServiceProvider
@@ -30,11 +34,17 @@ class LaravelPlatformManagerProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(__DIR__.'/../../config/platform-resolver.php', 'platform-resolver');
 
-        $this->app->scoped(PlatformResolver::class, function ($app) {
+        $this->app->scoped(PlatformResolver::class, function (Application $app) {
             $request = $app->make(Request::class);
 
             return new PlatformResolver($request, config('platform-resolver.model', \mindtwo\LaravelPlatformManager\Models\Platform::class));
         });
+
+        $this->app->when([Controller::class, Middleware::class])
+            ->needs(Platform::class)
+            ->give(function () {
+                return app(PlatformResolver::class)->getCurrentPlatform();
+            });
     }
 
     /**
