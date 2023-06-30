@@ -7,7 +7,6 @@ use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\DB;
 use mindtwo\LaravelAutoCreateUuid\AutoCreateUuid;
 use mindtwo\LaravelPlatformManager\Builders\PlatformBuilder;
 
@@ -44,32 +43,6 @@ class Platform extends Model
         'visibility' => 'boolean',
         'additional_hostnames' => 'array',
     ];
-
-    /**
-     * The "booted" method of the model.
-     *
-     * @return void
-     */
-    protected static function booted()
-    {
-        static::saving(function (Platform $platform) {
-            /** @var Platform|null $currentPlatform */
-            $currentPlatform = DB::table((new self)->getTable())->where('is_main', true)->first();
-
-            if ($platform->is_main && $currentPlatform?->id !== $platform->id) {
-                DB::table((new self)->getTable())
-                    ->where('is_main', true)
-                    ->where('id', '!=', $platform->id)
-                    ->update([
-                        'is_main' => false,
-                    ]);
-            }
-
-            if (! $platform->is_main && (empty($currentPlatform) || $currentPlatform->id === $platform->id)) {
-                $platform->is_main = true;
-            }
-        });
-    }
 
     /**
      * Get url to logo file.
