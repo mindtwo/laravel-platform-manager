@@ -29,7 +29,7 @@ it('can\'t resolve a platform if no main platforms are specified', function () {
     expect(fn () => $platformResolver->getCurrentPlatform())->toThrow('No query results for model [mindtwo\LaravelPlatformManager\Models\Platform]');
 });
 
-it('can\'t resolve a platform if all are unactive specified', function () {
+it('can\'t resolve a platform if all are inactive specified', function () {
     $platformResolver = app()->make(PlatformResolver::class);
 
     (new PlatformFactory())->inactive()->count(5)->create([
