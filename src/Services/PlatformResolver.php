@@ -64,25 +64,23 @@ class PlatformResolver
         }
 
         if (($headerName = AuthTokenTypeEnum::Public->getHeaderName()) && is_string($token = $this->request->header($headerName))) {
-            // $token = $this->request->header($headerName);
-
-            $this->current = $this->platformModel::query()->byPublicAuthToken($token)->first();
+            $this->current = $this->platformModel::query()->visible()->byPublicAuthToken($token)->first();
         }
 
         if (($headerName = AuthTokenTypeEnum::Secret->getHeaderName()) && is_string($token = $this->request->header($headerName))) {
 
-            $this->current = $this->platformModel::query()->bySecretAuthToken($token)->first();
+            $this->current = $this->platformModel::query()->visible()->bySecretAuthToken($token)->first();
         }
 
         // Check for hostname
         if (empty($this->current)) {
-            $this->current = $this->platformModel::query()->byHostname($this->request->getHost())->first();
+            $this->current = $this->platformModel::query()->visible()->byHostname($this->request->getHost())->first();
         }
 
         // Fallback primary platform
         if (empty($this->current)) {
             try {
-                $this->current = $this->platformModel::query()->isMain()->firstOrFail();
+                $this->current = $this->platformModel::query()->visible()->isMain()->firstOrFail();
             } catch (\Throwable $th) {
                 // TODO custom exception
 
@@ -91,5 +89,15 @@ class PlatformResolver
         }
 
         return $this->current;
+    }
+
+    /**
+     * Set current platform.
+     */
+    public function setCurrentPlatform(?Platform $platform): self
+    {
+        $this->current = $platform;
+
+        return $this;
     }
 }
