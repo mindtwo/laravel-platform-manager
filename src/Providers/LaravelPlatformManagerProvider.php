@@ -60,10 +60,6 @@ class LaravelPlatformManagerProvider extends ServiceProvider
      */
     protected function publishMigration()
     {
-        if (class_exists('CreatePlatformsTable')) {
-            return;
-        }
-
         $this->publishes([
             __DIR__.'/../../database/migrations/create_platforms_table.php' => database_path('migrations/'.date('Y_m_d_His', time()).'_create_platforms_table.php'),
             __DIR__.'/../../database/migrations/create_auth_tokens_table.php' => database_path('migrations/'.date('Y_m_d_His', time()).'_create_auth_tokens_table.php'),
@@ -71,5 +67,9 @@ class LaravelPlatformManagerProvider extends ServiceProvider
             __DIR__.'/../../database/migrations/create_webhook_requests_table.php' => database_path('migrations/'.date('Y_m_d_His', time()).'_create_webhook_requests_table.php'),
             __DIR__.'/../../database/migrations/create_webhook_configurations_table.php' => database_path('migrations/'.date('Y_m_d_His', time()).'_create_webhook_configurations_table.php'),
         ], ['migrations', 'platform-resolver']);
+
+        $this->publishes([
+            __DIR__.'/../../database/upgrade/update_to_v2_platforms_table.php' => database_path('migrations/'.date('Y_m_d_His', time()).'_update_to_v2_platforms_table.php'),
+        ], ['platform-resolver:upgrade']);
     }
 }
