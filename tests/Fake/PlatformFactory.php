@@ -25,11 +25,24 @@ class PlatformFactory extends Factory
     public function definition()
     {
         return [
-            'is_main' => 1,
             'visibility' => true,
             'name' => $this->faker->words(rand(1, 3), true),
-            'hostname' => request()->getHost(),
+            'hostname' => $this->faker->domainName,
         ];
+    }
+
+    /**
+     * Indicate that the platform is hidden.
+     *
+     * @return \Illuminate\Database\Eloquent\Factories\Factory
+     */
+    public function main()
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'is_main' => 1,
+            ];
+        });
     }
 
     /**
