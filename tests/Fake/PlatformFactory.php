@@ -28,7 +28,6 @@ class PlatformFactory extends Factory
             'is_main' => 1,
             'visibility' => true,
             'name' => $this->faker->words(rand(1, 3), true),
-            'email' => $this->faker->email,
             'hostname' => request()->getHost(),
         ];
     }

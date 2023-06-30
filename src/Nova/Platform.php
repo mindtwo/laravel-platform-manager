@@ -7,10 +7,14 @@ use Illuminate\Support\Str;
 use Laravel\Nova\Fields\Boolean;
 use Laravel\Nova\Fields\Field;
 use Laravel\Nova\Fields\ID;
-use Laravel\Nova\Fields\Image;
 use Laravel\Nova\Fields\Text;
 use mindtwo\LaravelPlatformManager\Models\Platform as PlatformModel;
 
+/**
+ * @template TModel of PlatformModel
+ *
+ * @mixin TModel
+ */
 class Platform extends Resource
 {
     /**
@@ -70,7 +74,7 @@ class Platform extends Resource
             Boolean::make(__('Visibility'), 'visibility'),
 
             Text::make(__('Name'), 'name')->sortable()->rules(['required', 'max:255']),
-            Text::make(__('Email'), 'email')->sortable()->rules(['required', 'max:255']),
+
             Text::make(__('Hostname'), 'hostname')
                 ->sortable()
                 ->rules(['max:255'])
@@ -99,8 +103,6 @@ class Platform extends Resource
                         )
                         ->toArray()
                 ),
-
-            Image::make(__('Platform Logo'), 'logo_file')->disk(config('media-library.disk_name'))->hideFromIndex(),
         ];
     }
 
@@ -168,5 +170,18 @@ class Platform extends Resource
     public static function group()
     {
         return trans_choice('Platforms', 1);
+    }
+
+    /**
+     * Get a fresh instance of the model represented by the resource.
+     *
+     * @return PlatformModel
+     */
+    public static function newModel()
+    {
+        /** @var TModel $model */
+        $model = static::$model;
+
+        return new $model;
     }
 }

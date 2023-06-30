@@ -18,10 +18,7 @@ use mindtwo\LaravelPlatformManager\Builders\PlatformBuilder;
  * @property bool|null $is_main
  * @property bool|null $visibility
  * @property string|null $name
- * @property string|null $email
  * @property string|null $hostname
- * @property string|null $logo_file
- * @property string|null $primary_color
  * @property array|null $additional_hostnames
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
@@ -34,6 +31,7 @@ class Platform extends Model
     use SoftDeletes;
     use AutoCreateUuid;
 
+    // TODO implement contract and move to config?
     protected static string $authTokenModel = AuthToken::class;
 
     /**
@@ -73,26 +71,45 @@ class Platform extends Model
         });
     }
 
+    /**
+     * Get url to logo file.
+     *
+     * @deprecated version 2.0.0
+     */
     public function getLogoUrlAttribute(): string
     {
-        return $this->logo_file ? asset('storage/'.$this->logo_file) : '';
+        return '';
     }
 
+    /**
+     * Platform webhooks.
+     */
     public function webhooks(): HasMany
     {
         return $this->hasMany(Webhook::class, 'platform_id');
     }
 
+    /**
+     * Platform webhooks.
+     */
     public function webhookConfigurations(): HasMany
     {
         return $this->hasMany(WebhookConfiguration::class, 'platform_id');
     }
 
+    /**
+     * Create a new Eloquent query builder for the model.
+     *
+     * @param  \Illuminate\Database\Query\Builder  $query
+     */
     public function newEloquentBuilder($query): PlatformBuilder
     {
         return new PlatformBuilder($query);
     }
 
+    /**
+     * Begin querying the model.
+     */
     public static function query(): PlatformBuilder|Builder
     {
         return parent::query();
