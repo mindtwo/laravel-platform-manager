@@ -17,7 +17,7 @@ class PlatformBuilder extends Builder
     /**
      * Only platforms with frontend
      */
-    public function isMain(): PlatformBuilder
+    public function isMain(): self
     {
         return $this->where('is_main', true);
     }
@@ -25,7 +25,7 @@ class PlatformBuilder extends Builder
     /**
      * Only visible platforms
      */
-    public function visible(): PlatformBuilder
+    public function visible(): self
     {
         return $this->where('visibility', true);
     }
@@ -33,14 +33,14 @@ class PlatformBuilder extends Builder
     /**
      * Filter platforms by their hostname
      */
-    public function byHostname(string $hostname): PlatformBuilder
+    public function byHostname(string $hostname): self
     {
         return $this
             ->where('hostname', $hostname)
             ->orWhere(fn (self $query) => $query->where('additional_hostnames', 'LIKE', "%\"$hostname\"%"));
     }
 
-    public function byPublicAuthToken(string $token): PlatformBuilder
+    public function byPublicAuthToken(string $token): self
     {
         return $this->whereExists(
             fn (QueryBuilder $builder) => $builder->select(DB::raw(1))->from('auth_tokens')
@@ -50,7 +50,7 @@ class PlatformBuilder extends Builder
         );
     }
 
-    public function bySecretAuthToken(string $token): PlatformBuilder
+    public function bySecretAuthToken(string $token): self
     {
         return $this->whereExists(
             fn (QueryBuilder $builder) => $builder->select(DB::raw(1))->from('auth_tokens')
