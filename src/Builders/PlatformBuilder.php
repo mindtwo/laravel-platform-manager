@@ -35,9 +35,10 @@ class PlatformBuilder extends Builder
      */
     public function byHostname(string $hostname): self
     {
-        return $this
-            ->where('hostname', $hostname)
-            ->orWhere(fn (self $query) => $query->where('additional_hostnames', 'LIKE', "%\"$hostname\"%"));
+        return $this->where(function ($query) use ($hostname) {
+            return $query->where('hostname', $hostname)
+                ->orWhere(fn (self $q) => $q->where('additional_hostnames', 'LIKE', "%\"$hostname\"%"));
+        });
     }
 
     public function byPublicAuthToken(string $token): self
