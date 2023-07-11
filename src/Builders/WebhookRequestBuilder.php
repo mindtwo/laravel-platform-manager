@@ -5,12 +5,12 @@ namespace mindtwo\LaravelPlatformManager\Builders;
 use Illuminate\Database\Eloquent\Builder;
 use mindtwo\LaravelPlatformManager\Models\Platform;
 
-class WebhookBuilder extends Builder
+class WebhookRequestBuilder extends Builder
 {
     /**
      * Only processed WebhookRequests.
      */
-    public function active(): WebhookBuilder
+    public function active(): WebhookRequestBuilder
     {
         return $this->where('active', true);
     }
@@ -18,7 +18,7 @@ class WebhookBuilder extends Builder
     /**
      * Get all WebhookRequest for a platform.
      */
-    public function forPlatform(Platform $platform): WebhookBuilder
+    public function forPlatform(Platform $platform): WebhookRequestBuilder
     {
         return $this->whereHas('platform', fn ($query) => $query->where('id', $platform->id));
     }
