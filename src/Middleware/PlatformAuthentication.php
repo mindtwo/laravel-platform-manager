@@ -37,7 +37,7 @@ class PlatformAuthentication
         }
 
         // check if auth token is valid
-        if (! $this->platformResolver->checkAuth($tokenType)) {
+        if (! $this->platformResolver->checkAuth($tokenType, $request)) {
             response()->json(['message' => 'Unauthenticated. Check provided credentials.'], 401)->send();
             exit;
         }
