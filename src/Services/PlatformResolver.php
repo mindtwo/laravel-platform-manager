@@ -25,9 +25,11 @@ class PlatformResolver
      * Platform must only be visible. When mode is strict
      * the hostname is also checked.
      */
-    public function checkAuth(AuthTokenTypeEnum $tokenType, bool $strict = false): bool
+    public function checkAuth(AuthTokenTypeEnum $tokenType, ?Request $request = null, bool $strict = false): bool
     {
-        if (null !== ($token = $this->request->header($tokenType->getHeaderName()))) {
+        $request = $request ?? $this->request;
+
+        if (null !== ($token = $request->header($tokenType->getHeaderName()))) {
             return AuthToken::query()
                 ->where([
                     'token' => $token,
