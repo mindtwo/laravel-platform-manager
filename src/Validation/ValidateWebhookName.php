@@ -21,6 +21,7 @@ class ValidateWebhookName
         }
         $platformResolver = app()->make(PlatformResolver::class);
 
+        /** @var ?Webhook $webhook */
         $webhook = Webhook::query()->where([
             'hook' => $hook,
             'platform_id' => $platformResolver->getCurrentPlatform()->id,

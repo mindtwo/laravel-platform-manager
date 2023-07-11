@@ -25,11 +25,9 @@ class PlatformFactory extends Factory
     public function definition()
     {
         return [
-            'is_main' => 1,
-            'visibility' => true,
+            'is_active' => true,
             'name' => $this->faker->words(rand(1, 3), true),
-            'email' => $this->faker->email,
-            'hostname' => request()->getHost(),
+            'hostname' => $this->faker->domainName,
         ];
     }
 
@@ -38,11 +36,39 @@ class PlatformFactory extends Factory
      *
      * @return \Illuminate\Database\Eloquent\Factories\Factory
      */
-    public function hidden()
+    public function main()
     {
         return $this->state(function (array $attributes) {
             return [
-                'visibility' => 0,
+                'is_main' => 1,
+            ];
+        });
+    }
+
+    /**
+     * Indicate that the platform is hidden.
+     *
+     * @return \Illuminate\Database\Eloquent\Factories\Factory
+     */
+    public function inactive()
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'is_active' => 0,
+            ];
+        });
+    }
+
+    /**
+     * Indicate that the platform is hidden.
+     *
+     * @return \Illuminate\Database\Eloquent\Factories\Factory
+     */
+    public function active()
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'is_active' => 0,
             ];
         });
     }

@@ -1,0 +1,18 @@
+includes:
+    - ./vendor/nunomaduro/larastan/extension.neon
+
+parameters:
+
+    # checkUnusedViews: true
+
+    paths:
+        - src
+
+    # Level 9 is the highest level
+    level: 8
+
+    ignoreErrors:
+    excludePaths:
+
+    checkMissingIterableValueType: false
+    checkGenericClassInNonGenericObjectType: false

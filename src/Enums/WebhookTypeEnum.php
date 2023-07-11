@@ -6,8 +6,8 @@ use mindtwo\NativeEnum\BaseEnum;
 use mindtwo\NativeEnum\Contracts\LocalizedEnum;
 
 /**
- * @method static static Secret()
- * @method static static Public()
+ * @method static static Incoming()
+ * @method static static Outgoing()
  */
 enum WebhookTypeEnum: int implements LocalizedEnum
 {

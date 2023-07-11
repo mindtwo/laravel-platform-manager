@@ -28,7 +28,9 @@
         "orchestra/testbench": "^7.0|^8.0",
         "pestphp/pest": "^1.0|^2.0",
         "pestphp/pest-plugin-laravel": "^1.0|^2.0",
-        "pestphp/pest-plugin-watch": "^1.0|^2.0"
+        "pestphp/pest-plugin-watch": "^1.0|^2.0",
+        "laravel/nova": "^4.26",
+        "nunomaduro/larastan": "^2.0"
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
@@ -54,5 +56,11 @@
         "allow-plugins": {
             "pestphp/pest-plugin": true
         }
-    }
+    },
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://repo.packagist.com/mindtwo/"
+        }
+    ]
 }

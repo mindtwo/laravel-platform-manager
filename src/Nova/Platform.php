@@ -7,10 +7,14 @@ use Illuminate\Support\Str;
 use Laravel\Nova\Fields\Boolean;
 use Laravel\Nova\Fields\Field;
 use Laravel\Nova\Fields\ID;
-use Laravel\Nova\Fields\Image;
 use Laravel\Nova\Fields\Text;
 use mindtwo\LaravelPlatformManager\Models\Platform as PlatformModel;
 
+/**
+ * @template TModel of PlatformModel
+ *
+ * @mixin TModel
+ */
 class Platform extends Resource
 {
     /**
@@ -63,11 +67,18 @@ class Platform extends Resource
     {
         return [
             ID::make(__('ID'), 'id')->sortable(),
-            Boolean::make(__('Main'), 'is_main'),
-            Boolean::make(__('Visibility'), 'visibility'),
+
+            Boolean::make(__('Active'), 'is_active')
+                ->help(__('Toggle the platforms state to active/inactive. Inactive platforms are not used for matching.')),
+
+            Boolean::make(__('Main'), 'is_main')
+                ->help(__('Main platforms are used as fallback when no other platform can be matched via authtoken or hostname.')),
+
+            Boolean::make(__('Headless'), 'is_headless')
+                ->help(__('Headless platforms platforms without a frontend provided by this app. Headless platforms may be consumed by other apps or frontends via API.')),
 
             Text::make(__('Name'), 'name')->sortable()->rules(['required', 'max:255']),
-            Text::make(__('Email'), 'email')->sortable()->rules(['required', 'max:255']),
+
             Text::make(__('Hostname'), 'hostname')
                 ->sortable()
                 ->rules(['max:255'])
@@ -79,23 +90,23 @@ class Platform extends Resource
                             ->before('/')
                             ->toString()
                 ),
+
             Text::make(__('Additional Hostnames'), 'additional_hostnames')
                 ->help(__('Multiple entries can be separated by commas.'))
                 ->hideFromIndex()
-                ->resolveUsing(fn ($item) => collect($item ?? [])->implode(','))
+                ->resolveUsing(fn ($item) => collect($item ?? [])->implode(',')) // @phpstan-ignore-line
                 ->fillUsing(
                     fn ($request, $model, $attribute, $requestAttribute) => $model->{$attribute} =
                     collect(explode(',', $request->input($attribute) ?? ''))
                         ->map(
                             fn ($str) => Str::of($str)
-                            ->replaceFirst('http://', '')
-                            ->replaceFirst('https://', '')
-                            ->before('/')
-                            ->toString()
+                                ->replaceFirst('http://', '')
+                                ->replaceFirst('https://', '')
+                                ->before('/')
+                                ->toString()
                         )
                         ->toArray()
                 ),
-            Image::make(__('Platform Logo'), 'logo_file')->disk(config('media-library.disk_name'))->hideFromIndex(),
         ];
     }
 
@@ -163,5 +174,18 @@ class Platform extends Resource
     public static function group()
     {
         return trans_choice('Platforms', 1);
+    }
+
+    /**
+     * Get a fresh instance of the model represented by the resource.
+     *
+     * @return PlatformModel
+     */
+    public static function newModel()
+    {
+        /** @var TModel $model */
+        $model = static::$model;
+
+        return new $model;
     }
 }

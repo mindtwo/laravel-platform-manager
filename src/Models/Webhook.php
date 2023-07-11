@@ -3,6 +3,7 @@
 namespace mindtwo\LaravelPlatformManager\Models;
 
 use Carbon\Carbon;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use mindtwo\LaravelAutoCreateUuid\AutoCreateUuid;
@@ -16,8 +17,6 @@ use mindtwo\LaravelPlatformManager\Builders\WebhookBuilder;
  * @property bool $active
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- *
- * @method static query()
  */
 class Webhook extends Model
 {
@@ -61,6 +60,11 @@ class Webhook extends Model
     public function platform(): BelongsTo
     {
         return $this->belongsTo(config('platform-resolver.model'), 'platform_id');
+    }
+
+    public static function query(): WebhookBuilder|Builder
+    {
+        return parent::query();
     }
 
     public function newEloquentBuilder($query): WebhookBuilder

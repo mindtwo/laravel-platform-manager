@@ -6,36 +6,42 @@ use Illuminate\Contracts\Database\Query\Builder as QueryBuilder;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use mindtwo\LaravelPlatformManager\Enums\AuthTokenTypeEnum;
+use mindtwo\LaravelPlatformManager\Models\Platform;
 
+/**
+ * @method ?Platform first()
+ * @method Platform firstOrFail()
+ */
 class PlatformBuilder extends Builder
 {
     /**
-     * Only platforms with frontend
+     * Only main platforms
      */
-    public function isMain(): PlatformBuilder
+    public function isMain(): self
     {
         return $this->where('is_main', true);
     }
 
     /**
-     * Only visible platforms
+     * Only active platforms
      */
-    public function visible(): PlatformBuilder
+    public function isActive(): self
     {
-        return $this->where('visibility', true);
+        return $this->where('is_active', true);
     }
 
     /**
      * Filter platforms by their hostname
      */
-    public function byHostname(string $hostname): PlatformBuilder
+    public function byHostname(string $hostname): self
     {
-        return $this
-            ->where('hostname', $hostname)
-            ->orWhere(fn (self $query) => $query->where('additional_hostnames', 'LIKE', "%\"$hostname\"%"));
+        return $this->where(function ($query) use ($hostname) {
+            return $query->where('hostname', $hostname)
+                ->orWhere(fn (self $q) => $q->where('additional_hostnames', 'LIKE', "%\"$hostname\"%"));
+        });
     }
 
-    public function byPublicAuthToken(string $token): self|null
+    public function byPublicAuthToken(string $token): self
     {
         return $this->whereExists(
             fn (QueryBuilder $builder) => $builder->select(DB::raw(1))->from('auth_tokens')
@@ -45,7 +51,7 @@ class PlatformBuilder extends Builder
         );
     }
 
-    public function bySecretAuthToken(string $token): self|null
+    public function bySecretAuthToken(string $token): self
     {
         return $this->whereExists(
             fn (QueryBuilder $builder) => $builder->select(DB::raw(1))->from('auth_tokens')

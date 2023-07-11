@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Log;
 use mindtwo\LaravelPlatformManager\Enums\WebhookTypeEnum;
 use mindtwo\LaravelPlatformManager\Events\WebhookReceivedEvent;
 use mindtwo\LaravelPlatformManager\Http\Requests\StoreWebhookRequest;
+use mindtwo\LaravelPlatformManager\Models\Platform;
 use mindtwo\LaravelPlatformManager\Models\Webhook;
 use mindtwo\LaravelPlatformManager\Models\WebhookRequest;
 use mindtwo\LaravelPlatformManager\Services\PlatformResolver;
@@ -30,7 +31,7 @@ class WebhookController extends Controller
 
         $webhooks = WebhookRequest::query()
             ->forPlatform($this->platformResolver->getCurrentPlatform())
-            ->when($request->boolean('processed'), fn ($query) => $query->processed())
+            ->when($request->boolean('active'), fn ($query) => $query->active())
             ->get();
 
         return response()->json([
@@ -41,12 +42,13 @@ class WebhookController extends Controller
     /**
      * Store webhook request.
      */
-    public function store(StoreWebhookRequest $storeWebhookRequest): JsonResponse
+    public function store(StoreWebhookRequest $storeWebhookRequest, Platform $currentPlatform): JsonResponse
     {
-        $currentPlatform = $this->platformResolver->getCurrentPlatform();
+        // $currentPlatform = $this->platformResolver->getCurrentPlatform();
         $hookName = $storeWebhookRequest->validated('hook');
 
         try {
+            /** @var WebhookRequest $request */
             $request = WebhookRequest::create([
                 'type' => WebhookTypeEnum::Incoming(),
                 'hook' => $storeWebhookRequest->validated('hook'),
@@ -54,6 +56,8 @@ class WebhookController extends Controller
             ]);
         } catch (\Throwable $th) {
             Log::error($th->getMessage());
+
+            throw $th;
         }
 
         WebhookReceivedEvent::dispatch($request, $currentPlatform);

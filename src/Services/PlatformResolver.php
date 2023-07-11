@@ -3,6 +3,7 @@
 namespace mindtwo\LaravelPlatformManager\Services;
 
 use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Request;
 use mindtwo\LaravelPlatformManager\Enums\AuthTokenTypeEnum;
 use mindtwo\LaravelPlatformManager\Models\AuthToken;
@@ -15,14 +16,20 @@ class PlatformResolver
      */
     private ?Platform $current = null;
 
+    /**
+     * PlatformResolver constructor.
+     *
+     * @param  class-string<Platform>  $platformModel
+     */
     public function __construct(
         protected Request $request,
+        protected string $platformModel,
     ) {
     }
 
     /**
      * Check if request is Authenticated via platform auth.
-     * Platform must only be visible. When mode is strict
+     * Platform only has to be active. When mode is strict
      * the hostname is also checked.
      */
     public function checkAuth(AuthTokenTypeEnum $tokenType, ?Request $request = null, bool $strict = false): bool
@@ -41,7 +48,7 @@ class PlatformResolver
                             $strict,
                             fn ($query) => $query->where('hostname', $this->request->getHost())
                         )
-                        ->where('visibility', true);
+                        ->where('is_active', true);
                 })
                 ->exists();
         }
@@ -52,36 +59,46 @@ class PlatformResolver
     /**
      * Get current Platform. Return type is your configured
      * eloquent platform model class. See: config('platform-resolver.model')
-     *
-     * @return mixed
      */
-    public function getCurrentPlatform()
+    public function getCurrentPlatform(): Platform
     {
         if (isset($this->current)) {
             return $this->current;
         }
 
-        /** @var Platform $model */
-        $model = app(config('platform-resolver.model'));
-
-        if (($headerName = AuthTokenTypeEnum::Public->getHeaderName()) && $this->request->hasHeader($headerName)) {
-            $this->current = $model->query()->byPublicAuthToken($this->request->header('X-Context-Platform-Public-Auth-Token'))->first();
+        if (($headerName = AuthTokenTypeEnum::Public->getHeaderName()) && is_string($token = $this->request->header($headerName))) {
+            $this->current = $this->platformModel::query()->isActive()->byPublicAuthToken($token)->first();
         }
 
-        if (($headerName = AuthTokenTypeEnum::Secret->getHeaderName()) && $this->request->hasHeader($headerName)) {
-            $this->current = $model->query()->bySecretAuthToken($this->request->header($headerName))->first();
+        if (($headerName = AuthTokenTypeEnum::Secret->getHeaderName()) && is_string($token = $this->request->header($headerName))) {
+
+            $this->current = $this->platformModel::query()->isActive()->bySecretAuthToken($token)->first();
         }
 
         // Check for hostname
         if (empty($this->current)) {
-            $this->current = $model->query()->byHostname($this->request->getHost())->first();
+            $this->current = $this->platformModel::query()->isActive()->byHostname($this->request->getHost())->first();
         }
 
         // Fallback primary platform
         if (empty($this->current)) {
-            $this->current = $model->query()->isMain()->firstOrFail();
+            try {
+                $this->current = $this->platformModel::query()->isActive()->isMain()->firstOrFail();
+            } catch (\Throwable $th) {
+                throw new HttpResponseException(response('No platform found.', 404));
+            }
         }
 
         return $this->current;
+    }
+
+    /**
+     * Set current platform.
+     */
+    public function setCurrentPlatform(?Platform $platform): self
+    {
+        $this->current = $platform;
+
+        return $this;
     }
 }
