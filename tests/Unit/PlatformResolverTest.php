@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use mindtwo\LaravelPlatformManager\Enums\AuthTokenTypeEnum;
 use mindtwo\LaravelPlatformManager\Models\AuthToken;
 use mindtwo\LaravelPlatformManager\Models\Platform;
@@ -17,7 +18,7 @@ it('can\'t resolve a platform if none are specified', function () {
     $platformResolver = app()->make(PlatformResolver::class);
 
     expect(Platform::query()->count())->toBe(0);
-    expect(fn () => $platformResolver->getCurrentPlatform())->toThrow('No query results for model [mindtwo\LaravelPlatformManager\Models\Platform]');
+    expect(fn () => $platformResolver->getCurrentPlatform())->toThrow(HttpResponseException::class);
 });
 
 it('can\'t resolve a platform if no main platforms are specified', function () {
@@ -26,7 +27,7 @@ it('can\'t resolve a platform if no main platforms are specified', function () {
     (new PlatformFactory())->count(5)->create();
 
     expect(Platform::query()->count())->toBe(5);
-    expect(fn () => $platformResolver->getCurrentPlatform())->toThrow('No query results for model [mindtwo\LaravelPlatformManager\Models\Platform]');
+    expect(fn () => $platformResolver->getCurrentPlatform())->toThrow(HttpResponseException::class);
 });
 
 it('can\'t resolve a platform if all are inactive specified', function () {
@@ -37,7 +38,7 @@ it('can\'t resolve a platform if all are inactive specified', function () {
     ]);
 
     expect(Platform::query()->count())->toBe(5);
-    expect(fn () => $platformResolver->getCurrentPlatform())->toThrow('No query results for model [mindtwo\LaravelPlatformManager\Models\Platform]');
+    expect(fn () => $platformResolver->getCurrentPlatform())->toThrow(HttpResponseException::class);
 });
 
 it('can resolve a platform if a main platform is specified', function () {
