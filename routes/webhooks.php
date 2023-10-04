@@ -19,4 +19,7 @@ Route::name('webhooks.')->group(function () {
     Route::post($url, [WebhookController::class, 'store'])->middleware([EnsureWebhooksAreEnabled::class, PlatformAuthentication::class.':secret']);
 
     Route::post('/v2/webhooks', HandleV2WebhookController::class)->middleware([EnsureWebhooksAreEnabled::class, PlatformAuthentication::class.':secret'])->name('v2');
+
+    // TODO implement controller
+    Route::post('/v2/callback', HandleV2WebhookController::class)->middleware([EnsureWebhooksAreEnabled::class, PlatformAuthentication::class.':secret'])->name('callback_url');
 });
