@@ -50,6 +50,20 @@ class PlatformFactory extends Factory
      *
      * @return \Illuminate\Database\Eloquent\Factories\Factory
      */
+    public function local()
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'hostname' => 'localhost',
+            ];
+        });
+    }
+
+    /**
+     * Indicate that the platform is hidden.
+     *
+     * @return \Illuminate\Database\Eloquent\Factories\Factory
+     */
     public function inactive()
     {
         return $this->state(function (array $attributes) {

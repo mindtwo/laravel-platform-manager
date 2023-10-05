@@ -81,5 +81,11 @@ class LaravelPlatformManagerProvider extends ServiceProvider
         $this->publishes([
             __DIR__.'/../../database/upgrade/update_to_v2_platforms_table.php' => database_path('migrations/'.date('Y_m_d_His', time()).'_update_to_v2_platforms_table.php'),
         ], ['platform-resolver:upgrade']);
+
+        $this->publishes([
+            __DIR__.'/../../database/upgrade-hooks/create_webhook_dispatches_v2_table.php' => database_path('migrations/'.date('Y_m_d_His', time()).'_create_webhook_dispatches_v2_table.php'),
+            __DIR__.'/../../database/upgrade-hooks/create_webhook_requests_v2_table.php' => database_path('migrations/'.date('Y_m_d_His', time()).'_create_webhook_requests_v2_table.php'),
+            __DIR__.'/../../database/upgrade-hooks/create_webhook_responses_v2_table.php' => database_path('migrations/'.date('Y_m_d_His', time()).'_create_webhook_responses_v2_table.php'),
+        ], ['migrations', 'platform-resolver:upgrade-hooks']);
     }
 }

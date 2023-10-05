@@ -1,22 +1,16 @@
 <?php
-
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Testing\Fluent\AssertableJson;
 use mindtwo\LaravelPlatformManager\Enums\AuthTokenTypeEnum;
 use mindtwo\LaravelPlatformManager\Enums\WebhookTypeEnum;
-use mindtwo\LaravelPlatformManager\Models\AuthToken;
 use mindtwo\LaravelPlatformManager\Models\Webhook;
 use mindtwo\LaravelPlatformManager\Models\WebhookRequest;
-use mindtwo\LaravelPlatformManager\Tests\Fake\PlatformFactory;
-
-uses(RefreshDatabase::class);
 
 beforeEach(function () {
     $this->refreshDatabase();
 });
 
 it('can only create one hook per platform', function () {
-    $platform = createPlatformAndToken()['platform'];
+    $platform = $this->createPlatformAndToken()['platform'];
 
     $platform->webhooks()->create([
         'hook' => 'example',
@@ -32,7 +26,7 @@ it('can only create one hook per platform', function () {
 });
 
 it('can only create hooks from config file', function () {
-    $platform = createPlatformAndToken()['platform'];
+    $platform = $this->createPlatformAndToken()['platform'];
 
     $platform->webhooks()->create([
         'hook' => 'example',
@@ -69,7 +63,7 @@ it('can activate or deactivate single webhooks', function () {
 
     expect($webhook->active)->toBeTrue();
 
-    $test = createPlatformAndToken();
+    $test = $this->createPlatformAndToken();
     $token = $test['token'];
 
     $this->postJson(
@@ -103,7 +97,7 @@ it('can activate or deactivate single webhooks', function () {
 });
 
 it('can store webhook requests in DB', function () {
-    $test = createPlatformAndToken();
+    $test = $this->createPlatformAndToken();
     $token = $test['token'];
 
     $url = config('platform-resolver.webhooks.endpoint');
@@ -142,7 +136,7 @@ it('can store webhook requests in DB and call closure afterwards', function () {
         ];
     });
 
-    $token = createPlatformAndToken()['token'];
+    $token = $this->createPlatformAndToken()['token'];
     $url = config('platform-resolver.webhooks.endpoint');
 
     $this->postJson(
@@ -184,7 +178,7 @@ it('can store webhook requests in DB and call invokeable afterwards', function (
         }
     });
 
-    $token = createPlatformAndToken()['token'];
+    $token = $this->createPlatformAndToken()['token'];
 
     $url = config('platform-resolver.webhooks.endpoint');
 
@@ -218,17 +212,3 @@ it('can store webhook requests in DB and call invokeable afterwards', function (
         ],
     ]);
 });
-
-function createPlatformAndToken()
-{
-    $platform = (new PlatformFactory())->createOne();
-    $token = new AuthToken;
-
-    $token->platform_id = $platform->id;
-    $token->save();
-
-    return [
-        'platform' => $platform,
-        'token' => $token->token,
-    ];
-}
