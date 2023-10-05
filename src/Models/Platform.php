@@ -19,7 +19,6 @@ use mindtwo\LaravelPlatformManager\Builders\PlatformBuilder;
  * @property bool $is_headless
  * @property string|null $name
  * @property string|null $hostname
- * @property string|null $webhook_url
  * @property array|null $additional_hostnames
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
