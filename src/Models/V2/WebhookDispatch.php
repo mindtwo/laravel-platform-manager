@@ -14,9 +14,9 @@ use mindtwo\LaravelPlatformManager\Enums\DispatchStatusEnum;
  * @property int $id
  * @property int $platform_id
  * @property string $ulid
- * @property string|null $url
- * @property string|null $hook
- * @property string|null $dispatch_class
+ * @property string $url
+ * @property string $hook
+ * @property string $dispatch_class
  * @property DispatchStatusEnum $status
  * @property mixed $payload
  * @property Carbon|null $created_at
@@ -40,6 +40,7 @@ class WebhookDispatch extends Model
         'dispatch_class',
         'status',
         'payload',
+        'platform_id',
     ];
 
     /**

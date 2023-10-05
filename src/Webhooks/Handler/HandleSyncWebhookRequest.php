@@ -2,6 +2,8 @@
 
 namespace mindtwo\LaravelPlatformManager\Webhooks\Handler;
 
+use Illuminate\Contracts\Support\Arrayable;
+use JsonSerializable;
 use mindtwo\LaravelPlatformManager\Models\V2\WebhookRequest;
 use mindtwo\LaravelPlatformManager\Webhooks\Webhook;
 
@@ -32,9 +34,12 @@ class HandleSyncWebhookRequest
 
             return $result;
         } catch (\Throwable $th) {
+            $error = $this->webhook->onError($th);
+
             // save error value to database
-            $this->saveWebhookResponse($this->webhook->onError($th));
+            $this->saveWebhookResponse($error);
         }
 
+        return null;
     }
 }

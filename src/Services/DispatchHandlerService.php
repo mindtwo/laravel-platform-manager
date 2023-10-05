@@ -2,6 +2,7 @@
 
 namespace mindtwo\LaravelPlatformManager\Services;
 
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use mindtwo\LaravelPlatformManager\Models\V2\WebhookDispatch;
 use mindtwo\LaravelPlatformManager\Webhooks\Dispatch;
@@ -25,9 +26,11 @@ class DispatchHandlerService
 
     public function makeForUlid(string $ulid): DispatchHandler
     {
-        $dispatchModel = WebhookDispatch::where('ulid', $ulid)->first();
+        try {
+            /** @var WebhookDispatch $dispatchModel */
+            $dispatchModel = WebhookDispatch::where('ulid', $ulid)->firstOrFail();
 
-        if (! $dispatchModel) {
+        } catch (ModelNotFoundException $e) {
             throw new HttpResponseException(
                 response()->json([
                     'message' => 'Dispatch not found.',

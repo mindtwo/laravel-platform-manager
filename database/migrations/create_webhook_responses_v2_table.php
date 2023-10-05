@@ -17,9 +17,10 @@ return new class extends Migration
             Schema::create('webhook_responses_v2', function (Blueprint $table) {
                 $table->id();
 
-                $table->ulidMorphs('responseable', 'responseable_index');
+                $table->morphs('responseable');
 
                 $table->string('hook');
+                $table->string('ulid');
 
                 $table->json('payload')->nullable();
 

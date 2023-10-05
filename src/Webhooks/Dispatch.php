@@ -9,7 +9,19 @@ use JsonSerializable;
 abstract class Dispatch
 {
 
+    /**
+     * Is the webhook sync or async?
+     *
+     * @var boolean
+     */
     protected bool $isSync = false;
+
+    /**
+     * Hook name for registered webhook on external platform.
+     *
+     * @var ?string
+     */
+    protected ?string $hook = null;
 
     /**
      * Handle the response from the webhook.
@@ -28,7 +40,11 @@ abstract class Dispatch
      */
     public function hook(): string
     {
-        return Str::of(static::class)->replace('Dispatch', '')->kebab()->__toString();
+        if ($this->hook !== null) {
+            return $this->hook;
+        }
+
+        return Str::of(static::class)->afterLast('\\')->replace('Dispatch', '')->kebab()->__toString();
     }
 
     public function isSync(): bool

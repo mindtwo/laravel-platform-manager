@@ -11,8 +11,12 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
 use mindtwo\LaravelPlatformManager\Models\V2\WebhookRequest;
+use mindtwo\LaravelPlatformManager\Services\WebhookResolver;
 use mindtwo\LaravelPlatformManager\Webhooks\Webhook;
 
+/**
+ * @property Webhook $webhook
+ */
 class HandleAsyncWebhookRequest
 {
     use Dispatchable;
@@ -22,7 +26,7 @@ class HandleAsyncWebhookRequest
     use SerializesModels;
     use SavesResponse;
 
-    private Webhook $webhook;
+    private ?Webhook $webhook = null;
 
     /**
      * Create a new job instance.
@@ -35,7 +39,26 @@ class HandleAsyncWebhookRequest
         private array $payload,
         private WebhookRequest $request,
     ) {
-        $this->webhook = app()->make($webhookClz);
+        $this->resolveWebhook();
+    }
+
+    public function request(): WebhookRequest
+    {
+        return $this->request;
+    }
+
+    /**
+     * Resolve the webhook instance.
+     *
+     * @return Webhook
+     */
+    private function resolveWebhook(): Webhook
+    {
+        if ($this->webhook === null) {
+            $this->webhook = app()->make($this->webhookClz);
+        }
+
+        return $this->webhook;
     }
 
     /**
@@ -51,6 +74,11 @@ class HandleAsyncWebhookRequest
             return;
         }
 
+        $this->resolveWebhook();
+
+        /** @var string $responseUrl */
+        $responseUrl = $this->request->response_url;
+
         try {
             $payload = $this->validatePayload();
 
@@ -62,7 +90,7 @@ class HandleAsyncWebhookRequest
             // send result via response url
             Http::retry(5, 100, function (\Exception $exception, PendingRequest $request) {
                 return $exception instanceof ConnectionException;
-            })->post($this->request->response_url, [
+            })->post($responseUrl, [
                 'message' => 'Webhook handled successfully.',
                 'ulid' => $this->request->ulid,
                 'hook' => $this->request->hook,

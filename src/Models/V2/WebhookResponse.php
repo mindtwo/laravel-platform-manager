@@ -11,7 +11,8 @@ use mindtwo\LaravelPlatformManager\Builders\WebhookResponseBuilder;
 
 /**
  * @property int $id
- * @property string|null $hook
+ * @property string $ulid
+ * @property string $hook
  * @property mixed $payload
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
@@ -29,6 +30,7 @@ class WebhookResponse extends Model
      */
     protected $fillable = [
         'hook',
+        'ulid',
         'payload',
     ];
 

@@ -34,6 +34,7 @@ class HandleWebhookController extends Controller
         $webhook = $this->resolver->resolve($hookName);
 
         // save the request to the database
+        /** @var WebhookRequest $requestModel */
         $requestModel = WebhookRequest::create([
             'hook' => $hookName,
             'ulid' => $request->validated('ulid'),

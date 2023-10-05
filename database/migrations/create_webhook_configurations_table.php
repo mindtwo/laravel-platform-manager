@@ -18,7 +18,7 @@ return new class extends Migration {
                 $table->uuid();
 
                 $hook = $table->string('hook');
-                $table->string('description');
+                $table->string('description')->nullable();
                 $table->string('url');
                 $table->string('auth_token');
 
