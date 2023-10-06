@@ -58,7 +58,7 @@ abstract class DispatchConfiguration extends Resource
                     fn ($request, $model, $attribute, $requestAttribute) => $model->{$attribute} =
                         Str::of($request->input($attribute))
                         ->whenEndsWith('/', fn ($str) => Str::of(substr($str, 0, -1)))
-                        ->when(fn ($str) => !str_starts_with($str, '/'), fn ($str) => Str::of("/$str"))
+                        ->when(fn ($str) => !str_starts_with($str, '/') && !str_starts_with($str, 'https://'), fn ($str) => Str::of("/$str"))
                         ->toString()
                 ),
             Text::make(__('Auth Token'), 'auth_token')->rules(['required', 'max:255']),
