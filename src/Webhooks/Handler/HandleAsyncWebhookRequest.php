@@ -3,6 +3,7 @@
 namespace mindtwo\LaravelPlatformManager\Webhooks\Handler;
 
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
@@ -11,13 +12,12 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
 use mindtwo\LaravelPlatformManager\Models\V2\WebhookRequest;
-use mindtwo\LaravelPlatformManager\Services\WebhookResolver;
 use mindtwo\LaravelPlatformManager\Webhooks\Webhook;
 
 /**
  * @property Webhook $webhook
  */
-class HandleAsyncWebhookRequest
+class HandleAsyncWebhookRequest implements ShouldQueue
 {
     use Dispatchable;
     use ValidatesPayload;
