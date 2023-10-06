@@ -10,6 +10,7 @@ use mindtwo\LaravelPlatformManager\Enums\DispatchStatusEnum;
 use mindtwo\LaravelPlatformManager\Models\DispatchConfiguration;
 use mindtwo\LaravelPlatformManager\Models\Platform;
 use mindtwo\LaravelPlatformManager\Models\V2\WebhookDispatch;
+use mindtwo\LaravelPlatformManager\Webhooks\Concerns\SendsEmptyPayload;
 use mindtwo\LaravelPlatformManager\Webhooks\Dispatch;
 
 class DispatchHandler
@@ -81,6 +82,15 @@ class DispatchHandler
      */
     private function sendRequest(string $hook, DispatchConfiguration $dispatchConfiguration): bool
     {
+        $requestPayload = $this->dispatchInstance->requestPayload();
+        if (!($this->dispatchInstance instanceof SendsEmptyPayload) && empty($requestPayload)) {
+            $this->dispatchModel->update([
+                'status' => DispatchStatusEnum::Aborted(),
+            ]);
+
+            return false;
+        }
+
         $response = Http::withHeaders([
             AuthTokenTypeEnum::Secret->getHeaderName() => $dispatchConfiguration->auth_token,
             'Content-Type' => 'application/json',
