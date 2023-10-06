@@ -63,7 +63,7 @@ abstract class DispatchConfiguration extends Resource
                 ),
             Text::make(__('Auth Token'), 'auth_token')->rules(['required', 'max:255']),
 
-            BelongsTo::make(trans_choice('Platforms', 1), 'platform', $this->getPlatformNovaResource())->sortable()->rules(['required'])->nullable(),
+            BelongsTo::make(trans_choice('Platforms', 1), 'platform', $this->getPlatformNovaResource())->sortable()->nullable(),
 
         ];
     }
