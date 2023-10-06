@@ -100,7 +100,7 @@ abstract class Webhook extends Resource
      */
     public static function label(): string
     {
-        return trans_choice('Webhooks', 2);
+        return trans_choice('Webhooks (v1)', 2);
     }
 
     /**
@@ -108,7 +108,7 @@ abstract class Webhook extends Resource
      */
     public static function singularLabel(): string
     {
-        return trans_choice('Webhook', 1);
+        return trans_choice('Webhook (v1)', 1);
     }
 
     /**
