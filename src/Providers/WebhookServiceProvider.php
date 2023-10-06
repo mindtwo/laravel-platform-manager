@@ -59,7 +59,7 @@ class WebhookServiceProvider extends ServiceProvider
                 continue;
             }
 
-            $name = is_string($name) ? $name : (new $webhook)->name();
+            $name = is_string($name) ? $name : app($webhook)->name();
             $hooks[$name] = $webhook;
         }
 
