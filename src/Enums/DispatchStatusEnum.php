@@ -10,11 +10,11 @@ use mindtwo\NativeEnum\Contracts\LocalizedEnum;
  * @method static static Waiting()
  * @method static static Answered()
  */
-enum DispatchStatusEnum: string implements LocalizedEnum
+enum DispatchStatusEnum: int implements LocalizedEnum
 {
     use BaseEnum;
 
-    case Dispatched = 'dispatched';
-    case Waiting = 'waiting';
-    case Answered = 'answered';
+    case Dispatched = 10;
+    case Waiting = 20;
+    case Answered = 30;
 }
