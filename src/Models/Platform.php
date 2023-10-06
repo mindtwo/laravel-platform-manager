@@ -73,6 +73,16 @@ class Platform extends Model
     }
 
     /**
+     * Platform dispatches.
+     *
+     * @return HasMany
+     */
+    public function dispatchConfigurations(): HasMany
+    {
+        return $this->hasMany(DispatchConfiguration::class, 'platform_id');
+    }
+
+    /**
      * Create a new Eloquent query builder for the model.
      *
      * @param  \Illuminate\Database\Query\Builder  $query

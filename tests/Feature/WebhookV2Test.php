@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Queue;
 use mindtwo\LaravelPlatformManager\Enums\DispatchStatusEnum;
+use mindtwo\LaravelPlatformManager\Models\DispatchConfiguration;
 use mindtwo\LaravelPlatformManager\Models\V2\WebhookDispatch;
 use mindtwo\LaravelPlatformManager\Models\V2\WebhookRequest;
 use mindtwo\LaravelPlatformManager\Services\DispatchHandlerService;
@@ -22,7 +23,7 @@ it('can execute a sync webhook', function () {
     $test = $this->createPlatformAndToken();
     $platform = $test['platform'];
 
-    $platform->webhookConfigurations()->create([
+    $platform->dispatchConfigurations()->create([
         'hook' => 'example-sync',
         'url' => '/v2/webhooks',
         'auth_token' => $test['token'],
@@ -43,11 +44,36 @@ it('can execute a sync webhook', function () {
         ->and($dispatch->response->payload['doubled'])->toBe(2);
 });
 
+it('can execute a sync without platform webhook', function () {
+    $test = $this->createPlatformAndToken();
+    $platform = $test['platform'];
+
+    DispatchConfiguration::create([
+        'hook' => 'example-sync',
+        'url' => "https://{$platform->hostname}/v2/webhooks",
+        'auth_token' => $test['token'],
+    ]);
+
+    $dispatchHandler = app(DispatchHandlerService::class)->make(ExampleSyncDispatch::class);
+
+    expect($dispatchHandler)->toBeInstanceOf(DispatchHandler::class);
+
+    $result = $dispatchHandler->send();
+
+    expect($result)->toBeTrue();
+
+    $dispatch = WebhookDispatch::first();
+    expect($dispatch->status->value)->toBe(DispatchStatusEnum::Answered());
+
+    expect($dispatch->payload['number'])->toBe(1)
+        ->and($dispatch->response->payload['doubled'])->toBe(2);
+});
+
 it('can execute a sync webhook with parameter', function ($number, $doubled) {
     $test = $this->createPlatformAndToken();
     $platform = $test['platform'];
 
-    $platform->webhookConfigurations()->create([
+    $platform->dispatchConfigurations()->create([
         'hook' => 'example-sync',
         'url' => '/v2/webhooks',
         'auth_token' => $test['token'],
@@ -82,7 +108,7 @@ it('can execute an async webhook with parameter', function ($number, $doubled) {
     $test = $this->createPlatformAndToken();
     $platform = $test['platform'];
 
-    $platform->webhookConfigurations()->create([
+    $platform->dispatchConfigurations()->create([
         'hook' => 'example',
         'url' => '/v2/webhooks',
         'auth_token' => $test['token'],
@@ -121,7 +147,7 @@ it('can answer an async webhook with parameter', function ($number, $doubled) {
     $test = $this->createPlatformAndToken();
     $platform = $test['platform'];
 
-    $platform->webhookConfigurations()->create([
+    $platform->dispatchConfigurations()->create([
         'hook' => 'example',
         'url' => '/v2/webhooks',
         'auth_token' => $test['token'],

@@ -7,9 +7,9 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use mindtwo\LaravelPlatformManager\Enums\AuthTokenTypeEnum;
 use mindtwo\LaravelPlatformManager\Enums\DispatchStatusEnum;
+use mindtwo\LaravelPlatformManager\Models\DispatchConfiguration;
 use mindtwo\LaravelPlatformManager\Models\Platform;
 use mindtwo\LaravelPlatformManager\Models\V2\WebhookDispatch;
-use mindtwo\LaravelPlatformManager\Models\WebhookConfiguration;
 use mindtwo\LaravelPlatformManager\Webhooks\Dispatch;
 
 class DispatchHandler
@@ -22,53 +22,24 @@ class DispatchHandler
         $this->dispatchModel = new WebhookDispatch;
     }
 
-    public function sendToPlatform(Platform $platform): bool
+    public function send(): bool
     {
+        $hookName = $this->dispatchInstance->hook();
+
         try {
-            $hookName = $this->dispatchInstance->hook();
+            /** @var DispatchConfiguration $config */
+            $config = DispatchConfiguration::where('hook', $hookName)->firstOrFail();
+        } catch (\Throwable $th) {
+            throw new HttpResponseException(
+                response()->json([
+                    'message' => 'Dispatch not configured for platform.',
+                ], 404));
+        }
 
-            try {
-                /** @var WebhookConfiguration $config */
-                $config = $platform->webhookConfigurations()->where('hook', $hookName)->firstOrFail();
-            } catch (\Throwable $th) {
-                throw new HttpResponseException(
-                    response()->json([
-                        'message' => 'Webhook not configured.',
-                    ], 404));
-            }
+        try {
+            $this->fillDispatchModel($config);
 
-            $this->dispatchModel->fill([
-                'hook' => $this->dispatchInstance->hook(),
-                'payload' => $this->dispatchInstance->requestPayload(),
-                'ulid' => Str::ulid()->toBase58(),
-                'platform_id' => $platform->id,
-                'url' => $config->webhook_url,
-                'dispatch_class' => $this->dispatchInstance::class,
-                'status' => DispatchStatusEnum::Dispatched(),
-            ]);
-            $this->dispatchModel->save();
-
-            $response = Http::withHeaders([
-                AuthTokenTypeEnum::Secret->getHeaderName() => $config->auth_token,
-                'Content-Type' => 'application/json',
-                'Accept' => 'application/json',
-            ])->post($config->webhook_url, [
-                'hook' => $hookName,
-                'ulid' => $this->dispatchModel->ulid,
-                'data' => $this->dispatchInstance->requestPayload(),
-                'response_url' => route('webhooks.v2.callback'),
-            ])->throw();
-
-            // here we get the response from the webhook which is handled via a queue
-            if ($response->status() === 202) {
-                $this->dispatchModel->update([
-                    'status' => DispatchStatusEnum::Waiting(),
-                ]);
-
-                return false;
-            }
-
-            return $this->onResult($response->json('result'));
+            return $this->sendRequest($hookName, $config);
         } catch (\Throwable $th) {
             $this->dispatchInstance->onError($th);
 
@@ -76,6 +47,90 @@ class DispatchHandler
         }
     }
 
+    public function sendToPlatform(Platform $platform): bool
+    {
+        $hookName = $this->dispatchInstance->hook();
+
+        try {
+            /** @var DispatchConfiguration $config */
+            $config = $platform->dispatchConfigurations()->where('hook', $hookName)->firstOrFail();
+        } catch (\Throwable $th) {
+            throw new HttpResponseException(
+                response()->json([
+                    'message' => "Dispatch not configured with name $hookName.",
+                ], 404));
+        }
+
+        try {
+            $this->fillDispatchModel($config, $platform);
+
+            return $this->sendRequest($hookName, $config);
+        } catch (\Throwable $th) {
+            $this->dispatchInstance->onError($th);
+
+            return false;
+        }
+    }
+
+    /**
+     * Send the request to the configured endpoint.
+     *
+     * @param string $hook
+     * @param DispatchConfiguration $dispatchConfiguration
+     * @return boolean
+     */
+    private function sendRequest(string $hook, DispatchConfiguration $dispatchConfiguration): bool
+    {
+        $response = Http::withHeaders([
+            AuthTokenTypeEnum::Secret->getHeaderName() => $dispatchConfiguration->auth_token,
+            'Content-Type' => 'application/json',
+            'Accept' => 'application/json',
+        ])->post($dispatchConfiguration->endpoint, [
+            'hook' => $hook,
+            'ulid' => $this->dispatchModel->ulid,
+            'data' => $this->dispatchInstance->requestPayload(),
+            'response_url' => route('webhooks.v2.callback'),
+        ])->throw();
+
+        // here we get the response from the webhook which is handled via a queue
+        if ($response->status() === 202) {
+            $this->dispatchModel->update([
+                'status' => DispatchStatusEnum::Waiting(),
+            ]);
+
+            return false;
+        }
+
+        return $this->onResult($response->json('result'));
+    }
+
+    /**
+     * Fill the dispatch model with the given configuration.
+     *
+     * @param DispatchConfiguration $config
+     * @param Platform|null $platform
+     * @return void
+     */
+    private function fillDispatchModel(DispatchConfiguration $config, ?Platform $platform = null): void
+    {
+        $this->dispatchModel->fill([
+            'hook' => $this->dispatchInstance->hook(),
+            'payload' => $this->dispatchInstance->requestPayload(),
+            'ulid' => Str::ulid()->toBase58(),
+            'url' => $config->endpoint,
+            'platform_id' => $platform?->id,
+            'dispatch_class' => $this->dispatchInstance::class,
+            'status' => DispatchStatusEnum::Dispatched(),
+        ]);
+        $this->dispatchModel->save();
+    }
+
+    /**
+     * Save the response to the database and mark the dispatch as answered.
+     *
+     * @param array $result
+     * @return void
+     */
     private function saveResponse(array $result): void
     {
         $this->dispatchModel->response()->create([

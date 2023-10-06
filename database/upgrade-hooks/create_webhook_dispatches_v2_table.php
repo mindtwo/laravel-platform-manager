@@ -19,7 +19,7 @@ return new class extends Migration
 
                 $table->ulid('ulid')->index();
 
-                $table->unsignedBigInteger('platform_id');
+                $table->unsignedBigInteger('platform_id')->nullable();
 
                 $table->string('hook');
                 $table->string('dispatch_class');
