@@ -17,6 +17,13 @@ abstract class Webhook
     protected ?string $name = null;
 
     /**
+     * Exclude fields from logging in database.
+     *
+     * @var array<string>
+     */
+    public array $excludeFromLog = [];
+
+    /**
      * Handle the webhook payload after validation.
      */
     abstract public function handle(array $payload): array|Arrayable|JsonSerializable;

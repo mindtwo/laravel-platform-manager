@@ -30,7 +30,7 @@ class HandleWebhookController extends Controller
         $hookName = $request->validated('hook');
 
         // Resolve webhook
-        // WebhookResulver::resolve() returns an instance of the webhook class or exits the process with an error 404.
+        // WebhookResolver::resolve() returns an instance of the webhook class or exits the process with an error 404.
         $webhook = $this->resolver->resolve($hookName);
 
         // save the request to the database
@@ -40,7 +40,7 @@ class HandleWebhookController extends Controller
             'ulid' => $request->validated('ulid'),
             'requested_from' => $request->host(),
             'response_url' => $request->validated('response_url'),
-            'payload' => $request->validated('data'),
+            'payload' => collect($request->validated('data'))->except($webhook->excludeFromLog)->toArray(),
         ]);
 
         // Handle sync webhook
