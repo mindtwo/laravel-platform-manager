@@ -42,16 +42,15 @@ class DispatchConfiguration extends Model
     public function endpoint(): Attribute
     {
         return Attribute::make(function () {
-            if (!$this->platform && !str_starts_with($this->url, 'https://')) {
-                throw new \Exception("Invalid configuration exception. The configuration for {$this->hook} has no valid endpoint configured.", 1);
-
-            }
-
             if (str_starts_with($this->url, 'https://')) {
                 return $this->url;
             }
 
-            return "https://{$this->platform->hostname}{$this->url}";
+            if (! is_null($this->platform)) {
+                return "https://{$this->platform->hostname}{$this->url}";
+            }
+
+            throw new \Exception("Invalid configuration exception. The configuration for {$this->hook} has no valid endpoint configured.", 1);
         });
     }
 

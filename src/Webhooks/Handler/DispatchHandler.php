@@ -75,15 +75,11 @@ class DispatchHandler
 
     /**
      * Send the request to the configured endpoint.
-     *
-     * @param string $hook
-     * @param DispatchConfiguration $dispatchConfiguration
-     * @return boolean
      */
     private function sendRequest(string $hook, DispatchConfiguration $dispatchConfiguration): bool
     {
         $requestPayload = $this->dispatchInstance->requestPayload();
-        if (!($this->dispatchInstance instanceof SendsEmptyPayload) && empty($requestPayload)) {
+        if (! ($this->dispatchInstance instanceof SendsEmptyPayload) && empty($requestPayload)) {
             $this->dispatchModel->update([
                 'status' => DispatchStatusEnum::Aborted(),
             ]);
@@ -116,30 +112,25 @@ class DispatchHandler
 
     /**
      * Fill the dispatch model with the given configuration.
-     *
-     * @param DispatchConfiguration $config
-     * @param Platform|null $platform
-     * @return void
      */
-    private function fillDispatchModel(DispatchConfiguration $config, ?Platform $platform = null): void
+    private function fillDispatchModel(DispatchConfiguration $config, Platform $platform = null): void
     {
+        $payload = $this->dispatchInstance->payloadArray();
+
         $this->dispatchModel->fill([
             'hook' => $this->dispatchInstance->hook(),
-            'payload' => $this->dispatchInstance->requestPayload(),
             'ulid' => Str::ulid()->toBase58(),
             'url' => $config->endpoint,
             'platform_id' => $platform?->id,
             'dispatch_class' => $this->dispatchInstance::class,
             'status' => DispatchStatusEnum::Dispatched(),
+            'payload' => $this->dispatchInstance->payloadToSave($payload),
         ]);
         $this->dispatchModel->save();
     }
 
     /**
      * Save the response to the database and mark the dispatch as answered.
-     *
-     * @param array $result
-     * @return void
      */
     private function saveResponse(array $result): void
     {

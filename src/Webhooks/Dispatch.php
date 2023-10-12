@@ -5,9 +5,12 @@ namespace mindtwo\LaravelPlatformManager\Webhooks;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Str;
 use JsonSerializable;
+use mindtwo\LaravelPlatformManager\Traits\ExcludeKeysInLog;
 
 abstract class Dispatch
 {
+
+    use ExcludeKeysInLog;
 
     /**
      * Is the webhook sync or async?
@@ -58,5 +61,25 @@ abstract class Dispatch
     public function onError(\Throwable $th): void
     {
         throw $th;
+    }
+
+    /**
+     * Get the payload as array.
+     *
+     * @return array
+     */
+    public function payloadArray(): array
+    {
+        $payload = $this->requestPayload();
+
+        if ($payload instanceof JsonSerializable) {
+            return $payload->jsonSerialize();
+        }
+
+        if ($payload instanceof Arrayable) {
+            return $payload->toArray();
+        }
+
+        return $payload;
     }
 }

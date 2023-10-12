@@ -5,9 +5,13 @@ namespace mindtwo\LaravelPlatformManager\Webhooks;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Str;
 use JsonSerializable;
+use mindtwo\LaravelPlatformManager\Traits\ExcludeKeysInLog;
 
 abstract class Webhook
 {
+
+    use ExcludeKeysInLog;
+
     /**
      * Hook name for registering the webhook.
      * The name is used to call this webhook from the external platform.
@@ -15,13 +19,6 @@ abstract class Webhook
      * @var ?string
      */
     protected ?string $name = null;
-
-    /**
-     * Exclude fields from logging in database.
-     *
-     * @var array<string>
-     */
-    public array $excludeFromLog = [];
 
     /**
      * Handle the webhook payload after validation.
