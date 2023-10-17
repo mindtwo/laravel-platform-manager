@@ -23,6 +23,8 @@ return new class extends Migration
                 $table->boolean('is_headless')->default(0);
                 $table->string('name')->nullable();
                 $table->string('hostname', 50)->nullable()->index();
+                $table->string('default_locale', 5)->nullable();
+                $table->json('available_locales')->nullable();
                 $table->json('additional_hostnames')->nullable();
                 $table->timestamps();
                 $table->softDeletes();

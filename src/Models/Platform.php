@@ -44,6 +44,17 @@ class Platform extends Model
         'is_active' => 'boolean',
         'is_headless' => 'boolean',
         'additional_hostnames' => 'array',
+        'available_locales' => 'array',
+    ];
+
+    /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = [
+        'default_locale',
+        'available_locales',
     ];
 
     /**
@@ -98,5 +109,31 @@ class Platform extends Model
     public static function query(): PlatformBuilder|Builder
     {
         return parent::query();
+    }
+
+    /**
+     * Get the default locale.
+     *
+     * @param string|null $value
+     * @return string
+     */
+    public function getDefaultLocaleAttribute(?string $value=null): string
+    {
+        return $value ?? config('platform-resolver.default_locale') ?? 'en';
+    }
+
+    /**
+     * Get the available locales.
+     *
+     * @param array|string|null $value
+     * @return array|string[]
+     */
+    public function getAvailableLocalesAttribute(array|string|null $value=null): array
+    {
+        if (is_string($value)) {
+            return json_decode($value, true);
+        }
+
+        return $value ?? config('platform-resolver.available_locales') ?? ['en'];
     }
 }
