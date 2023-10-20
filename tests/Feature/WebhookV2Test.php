@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Queue;
 use mindtwo\LaravelPlatformManager\Enums\DispatchStatusEnum;
 use mindtwo\LaravelPlatformManager\Models\DispatchConfiguration;
+use mindtwo\LaravelPlatformManager\Models\ExternalPlatform;
 use mindtwo\LaravelPlatformManager\Models\V2\WebhookDispatch;
 use mindtwo\LaravelPlatformManager\Models\V2\WebhookRequest;
 use mindtwo\LaravelPlatformManager\Services\DispatchHandlerService;
@@ -141,6 +142,29 @@ it('can execute an async webhook with parameter', function ($number, $doubled) {
     [6, 12],
 ]);
 
+it('throws exception if no token is configured', function() {
+    $fakeBus = Bus::fake();
+
+    $test = $this->createPlatformAndToken();
+    $platform = $test['platform'];
+
+    DispatchConfiguration::create([
+        'hook' => 'example',
+        'url' => '/v2/webhooks',
+        // 'auth_token' => $test['token'],
+    ]);
+
+    $dispatchHandler = app(DispatchHandlerService::class)->makeWith(ExampleDispatch::class, [
+        'number' => 1,
+    ]);
+
+    expect($dispatchHandler)->toBeInstanceOf(DispatchHandler::class);
+
+    expect(fn () => $dispatchHandler->send())->toThrow(\Exception::class);
+
+    expect(WebhookRequest::count())->toBe(0);
+});
+
 it('can answer an async webhook with parameter', function ($number, $doubled) {
     $fakeBus = Bus::fake();
 
@@ -160,6 +184,56 @@ it('can answer an async webhook with parameter', function ($number, $doubled) {
     expect($dispatchHandler)->toBeInstanceOf(DispatchHandler::class);
 
     $result = $dispatchHandler->sendToPlatform($test['platform']);
+
+    expect($result)->toBeFalse();
+    Bus::assertDispatched(HandleAsyncWebhookRequest::class, function ($job) use ($number) {
+        return $job->request()->payload['number'] === $number;
+    });
+
+    $request = WebhookRequest::first();
+    (new HandleAsyncWebhookRequest(app(WebhookResolver::class)->resolve('example')::class, $request->payload, $request))->handle();
+
+    $dispatch = WebhookDispatch::first();
+    expect($dispatch->status->value)->toBe(DispatchStatusEnum::Answered());
+
+    expect($dispatch->payload['number'])->toBe($number)
+        ->and($dispatch->response->payload['doubled'])->toBe($doubled);
+
+    expect(WebhookRequest::count())->toBe(1);
+})->with([
+    [1, 2],
+    [3, 6],
+    [6, 12],
+]);
+
+
+it('can answer an async webhook with for external_platform', function ($number, $doubled) {
+    $fakeBus = Bus::fake();
+
+    $test = $this->createPlatformAndToken();
+    $platform = $test['platform'];
+
+    expect(DispatchConfiguration::count())->toBe(0);
+
+    $external_platform = ExternalPlatform::create([
+        'name' => 'test',
+        'hostname' => $platform->hostname,
+        'webhook_path' => '/v2/webhooks',
+        'webhook_auth_token' => $test['token'],
+    ]);
+
+    DispatchConfiguration::create([
+        'hook' => 'example',
+        'external_platform_id' => $external_platform->id,
+    ]);
+
+    $dispatchHandler = app(DispatchHandlerService::class)->makeWith(ExampleDispatch::class, [
+        'number' => $number,
+    ]);
+
+    expect($dispatchHandler)->toBeInstanceOf(DispatchHandler::class);
+
+    $result = $dispatchHandler->send();
 
     expect($result)->toBeFalse();
     Bus::assertDispatched(HandleAsyncWebhookRequest::class, function ($job) use ($number) {
