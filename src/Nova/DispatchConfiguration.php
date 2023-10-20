@@ -52,8 +52,8 @@ abstract class DispatchConfiguration extends Resource
             Text::make(__('Description'), 'description'),
 
             Text::make(__('Endpoint'), 'url')
-                ->rules(['string', 'max:255']),
-            Text::make(__('Auth Token'), 'auth_token')->rules(['string', 'max:255']),
+                ->rules(['nullable', 'string', 'max:255']),
+            Text::make(__('Auth Token'), 'auth_token')->rules(['nullable', 'string', 'max:255']),
 
             BelongsTo::make(trans_choice('Platforms', 1), 'platform', $this->getPlatformNovaResource())->sortable()->nullable(),
             BelongsTo::make(trans_choice('External Platforms', 1), 'externalPlatform', ExternalPlatform::class)->sortable()->nullable(),
