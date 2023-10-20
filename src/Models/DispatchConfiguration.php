@@ -12,11 +12,13 @@ use mindtwo\LaravelAutoCreateUuid\AutoCreateUuid;
  * @property int $id
  * @property string $uuid
  * @property int|null $platform_id
+ * @property int|null $external_platform_id
  * @property string $hook
  * @property string $auth_token
- * @property string $url
+ * @property ?string $url
  * @property string $endpoint
  * @property ?Platform $platform
+ * @property ?ExternalPlatform $external_platform
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  *
@@ -37,13 +39,21 @@ class DispatchConfiguration extends Model
         'url',
         'auth_token',
         'platform_id',
+        'external_platform_id',
     ];
 
     public function endpoint(): Attribute
     {
         return Attribute::make(function () {
-            if (str_starts_with($this->url, 'https://')) {
+            if ($this->created_at === null) {
+                return '';
+            }
+
+            if (!is_null($this->url) && str_starts_with($this->url, 'https://')) {
                 return $this->url;
+            }
+            if (! is_null($this->externalPlatform)) {
+                return $this->externalPlatform->webhook_endpoint;
             }
 
             if (! is_null($this->platform)) {
@@ -54,11 +64,35 @@ class DispatchConfiguration extends Model
         });
     }
 
+    public function authToken(): Attribute
+    {
+        return Attribute::make(function (?string $value) {
+            if ($this->created_at === null) {
+                return $value;
+            }
+
+            if (! is_null($value)) {
+                return $value;
+            }
+
+            if (! is_null($this->externalPlatform)) {
+                return $this->externalPlatform->webhook_auth_token;
+            }
+
+            throw new \Exception("Invalid configuration exception. The configuration for {$this->hook} has no valid auth token configured.", 1);
+        });
+    }
+
     /**
      * Platform that received hook call.
      */
     public function platform(): BelongsTo
     {
         return $this->belongsTo(config('platform-resolver.model'), 'platform_id');
+    }
+
+    public function externalPlatform(): BelongsTo
+    {
+        return $this->belongsTo(ExternalPlatform::class);
     }
 }

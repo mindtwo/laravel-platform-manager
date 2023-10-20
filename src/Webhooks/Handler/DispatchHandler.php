@@ -29,7 +29,7 @@ class DispatchHandler
 
         try {
             /** @var DispatchConfiguration $config */
-            $config = DispatchConfiguration::where('hook', $hookName)->firstOrFail();
+            $config = DispatchConfiguration::where('hook', $hookName)->with(['platform', 'externalPlatform'])->firstOrFail();
         } catch (\Throwable $th) {
             throw new HttpResponseException(
                 response()->json([

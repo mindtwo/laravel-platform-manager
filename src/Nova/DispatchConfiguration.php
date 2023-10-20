@@ -3,7 +3,6 @@
 namespace mindtwo\LaravelPlatformManager\Nova;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Text;
@@ -53,18 +52,11 @@ abstract class DispatchConfiguration extends Resource
             Text::make(__('Description'), 'description'),
 
             Text::make(__('Endpoint'), 'url')
-                ->rules(['required', 'max:255'])
-                ->fillUsing(
-                    fn ($request, $model, $attribute, $requestAttribute) => $model->{$attribute} =
-                        Str::of($request->input($attribute))
-                        ->whenEndsWith('/', fn ($str) => Str::of(substr($str, 0, -1)))
-                        ->when(fn ($str) => !str_starts_with($str, '/') && !str_starts_with($str, 'https://'), fn ($str) => Str::of("/$str"))
-                        ->toString()
-                ),
-            Text::make(__('Auth Token'), 'auth_token')->rules(['required', 'max:255']),
+                ->rules(['nullable', 'string', 'max:255']),
+            Text::make(__('Auth Token'), 'auth_token')->rules(['nullable', 'string', 'max:255']),
 
             BelongsTo::make(trans_choice('Platforms', 1), 'platform', $this->getPlatformNovaResource())->sortable()->nullable(),
-
+            BelongsTo::make(trans_choice('External Platforms', 1), 'externalPlatform', ExternalPlatform::class)->sortable()->nullable(),
         ];
     }
 
