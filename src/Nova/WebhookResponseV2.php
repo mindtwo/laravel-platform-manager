@@ -2,7 +2,7 @@
 
 namespace mindtwo\LaravelPlatformManager\Nova;
 
-use Laravel\Nova\Fields\Date;
+use Laravel\Nova\Fields\DateTime;
 use Laravel\Nova\Fields\Markdown;
 use Laravel\Nova\Fields\MorphTo;
 use Laravel\Nova\Fields\Text;
@@ -14,6 +14,16 @@ class WebhookResponseV2 extends Resource
      * The model the resource corresponds to.
      */
     public static string $model = \mindtwo\LaravelPlatformManager\Models\V2\WebhookResponse::class;
+
+    /**
+     * The columns that should be searched.
+     *
+     * @var array
+     */
+    public static $search = [
+        'hook',
+        'ulid',
+    ];
 
     /**
      * Get the fields displayed by the resource.
@@ -48,7 +58,7 @@ class WebhookResponseV2 extends Resource
                 WebhookDispatchV2::class,
             ]),
 
-            Date::make(__('Created at'), 'created_at')->readonly(),
+            DateTime::make(__('Created at'), 'created_at')->readonly()->sortable(),
         ];
     }
 
