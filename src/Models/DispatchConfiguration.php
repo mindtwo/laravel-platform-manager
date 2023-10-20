@@ -45,6 +45,10 @@ class DispatchConfiguration extends Model
     public function endpoint(): Attribute
     {
         return Attribute::make(function () {
+            if ($this->created_at === null) {
+                return '';
+            }
+
             if (!is_null($this->url) && str_starts_with($this->url, 'https://')) {
                 return $this->url;
             }
@@ -63,6 +67,10 @@ class DispatchConfiguration extends Model
     public function authToken(): Attribute
     {
         return Attribute::make(function (?string $value) {
+            if ($this->created_at === null) {
+                return $value;
+            }
+
             if (! is_null($value)) {
                 return $value;
             }
