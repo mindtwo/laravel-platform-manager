@@ -55,8 +55,8 @@ abstract class DispatchConfiguration extends Resource
                 ->rules(['nullable', 'string', 'max:255']),
             Text::make(__('Auth Token'), 'auth_token')->rules(['nullable', 'string', 'max:255']),
 
-            BelongsTo::make(trans_choice('Platforms', 1), 'platform', $this->getPlatformNovaResource())->sortable()->nullable(),
-            BelongsTo::make(trans_choice('External Platforms', 1), 'externalPlatform', ExternalPlatform::class)->sortable()->nullable(),
+            BelongsTo::make(__('Platform'), 'platform', $this->getPlatformNovaResource())->sortable()->nullable(),
+            BelongsTo::make(__('External Platforms'), 'externalPlatform', ExternalPlatform::class)->sortable()->nullable(),
         ];
     }
 
@@ -104,7 +104,7 @@ abstract class DispatchConfiguration extends Resource
      */
     public static function label(): string
     {
-        return trans_choice('Dispatch Configurations', 2);
+        return __('Dispatch Configurations');
     }
 
     /**
@@ -112,7 +112,7 @@ abstract class DispatchConfiguration extends Resource
      */
     public static function singularLabel(): string
     {
-        return trans_choice('Dispatch Configuration', 1);
+        return __('Dispatch Configuration');
     }
 
     /**
@@ -122,6 +122,6 @@ abstract class DispatchConfiguration extends Resource
      */
     public static function group()
     {
-        return trans_choice('Platforms', 1);
+        return __('Platform');
     }
 }

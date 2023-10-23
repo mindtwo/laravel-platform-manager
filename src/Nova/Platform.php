@@ -155,7 +155,7 @@ class Platform extends Resource
      */
     public static function label(): string
     {
-        return trans_choice('Platforms', 2);
+        return __('Platforms');
     }
 
     /**
@@ -163,7 +163,7 @@ class Platform extends Resource
      */
     public static function singularLabel(): string
     {
-        return trans_choice('Platforms', 1);
+        return __('Platform');
     }
 
     /**
@@ -173,7 +173,7 @@ class Platform extends Resource
      */
     public static function group()
     {
-        return trans_choice('Platforms', 1);
+        return __('Platform');
     }
 
     /**

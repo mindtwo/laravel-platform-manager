@@ -32,7 +32,7 @@ class ExternalPlatform extends Resource
      */
     public static function label(): string
     {
-        return trans_choice('External Platform', 2);
+        return __('External Platforms');
     }
 
     /**
@@ -40,7 +40,7 @@ class ExternalPlatform extends Resource
      */
     public static function singularLabel(): string
     {
-        return trans_choice('External Platform', 1);
+        return __('External Platform');
     }
 
     /**
@@ -50,6 +50,6 @@ class ExternalPlatform extends Resource
      */
     public static function group()
     {
-        return trans_choice('Platforms', 1);
+        return __('Platform');
     }
 }

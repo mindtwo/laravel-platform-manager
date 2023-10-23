@@ -65,7 +65,7 @@ class WebhookDispatchV2 extends Resource
      */
     public static function label(): string
     {
-        return trans_choice('Webhook Dispatches', 2).' (V2)';
+        return __('Webhook Dispatches').' (V2)';
     }
 
     /**
@@ -73,7 +73,7 @@ class WebhookDispatchV2 extends Resource
      */
     public static function singularLabel(): string
     {
-        return trans_choice('Webhook Dispatch', 1).' (V2)';
+        return __('Webhook Dispatch').' (V2)';
     }
 
     /**
@@ -83,6 +83,6 @@ class WebhookDispatchV2 extends Resource
      */
     public static function group()
     {
-        return trans_choice('Platforms', 1);
+        return __('Platform');
     }
 }

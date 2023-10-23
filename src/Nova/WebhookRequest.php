@@ -72,7 +72,7 @@ class WebhookRequest extends Resource
      */
     public static function label(): string
     {
-        return trans_choice('Webhook Requests', 2);
+        return __('Webhook Requests');
     }
 
     /**
@@ -80,7 +80,7 @@ class WebhookRequest extends Resource
      */
     public static function singularLabel(): string
     {
-        return trans_choice('Webhook Request', 1);
+        return __('Webhook Request');
     }
 
     /**
@@ -90,6 +90,6 @@ class WebhookRequest extends Resource
      */
     public static function group()
     {
-        return trans_choice('Platforms', 1);
+        return __('Platforms');
     }
 }

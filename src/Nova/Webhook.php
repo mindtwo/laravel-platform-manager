@@ -52,7 +52,7 @@ abstract class Webhook extends Resource
             Boolean::make(__('Active'), 'active'),
             Select::make(__('Name'), 'hook')->sortable()->options(collect(array_keys(config('webhooks')))->toArray())->rules(['required', 'max:255']),
 
-            BelongsTo::make(trans_choice('Platforms', 1), 'platform', $this->getPlatformNovaResource())->sortable()->rules(['required']),
+            BelongsTo::make(__('Platform'), 'platform', $this->getPlatformNovaResource())->sortable()->rules(['required']),
         ];
     }
 
@@ -100,7 +100,7 @@ abstract class Webhook extends Resource
      */
     public static function label(): string
     {
-        return trans_choice('Webhooks (v1)', 2);
+        return __('Webhooks (v1)');
     }
 
     /**
@@ -108,7 +108,7 @@ abstract class Webhook extends Resource
      */
     public static function singularLabel(): string
     {
-        return trans_choice('Webhook (v1)', 1);
+        return __('Webhook (v1)');
     }
 
     /**
@@ -118,6 +118,6 @@ abstract class Webhook extends Resource
      */
     public static function group()
     {
-        return trans_choice('Platforms', 1);
+        return __('Platform');
     }
 }

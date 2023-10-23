@@ -67,7 +67,7 @@ class WebhookResponseV2 extends Resource
      */
     public static function label(): string
     {
-        return trans_choice('Webhook Responses', 2).' (V2)';
+        return __('Webhook Responses').' (V2)';
     }
 
     /**
@@ -75,7 +75,7 @@ class WebhookResponseV2 extends Resource
      */
     public static function singularLabel(): string
     {
-        return trans_choice('Webhook Responses', 1).' (V2)';
+        return __('Webhook Response').' (V2)';
     }
 
     /**
@@ -85,6 +85,6 @@ class WebhookResponseV2 extends Resource
      */
     public static function group()
     {
-        return trans_choice('Platforms', 1);
+        return __('Platform');
     }
 }

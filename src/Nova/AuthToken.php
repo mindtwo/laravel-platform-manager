@@ -50,14 +50,14 @@ abstract class AuthToken extends Resource
     {
         return [
             ID::make(__('ID'), 'id')->sortable(),
-            BelongsTo::make(trans_choice('Platforms', 1), 'platform', $this->getPlatformNovaResource())->sortable()->rules(['required']),
+            BelongsTo::make(__('Platform'), 'platform', $this->getPlatformNovaResource())->sortable()->rules(['required']),
             Select::make(__('Type'), 'type')
                 ->options(AuthTokenTypeEnum::asSelectArray())
                 ->displayUsingLabels()->sortable(),
             Text::make(__('Description'), 'description')->sortable()->rules(['required', 'max:255']),
 
             new Panel(__('Readonly (auto populated fields)'), [
-                BelongsTo::make(trans_choice('Users', 1), 'user', $this->getUserNovaResource())->nullable()->sortable()->readonly()->hideFromIndex(),
+                BelongsTo::make(__('User'), 'user', $this->getUserNovaResource())->nullable()->sortable()->readonly()->hideFromIndex(),
                 Text::make(__('Token'), 'token')->sortable()->readonly()->hideFromIndex(),
             ]),
         ];
@@ -109,7 +109,7 @@ abstract class AuthToken extends Resource
      */
     public static function label(): string
     {
-        return trans_choice('Auth Tokens', 2);
+        return __('Auth Tokens');
     }
 
     /**
@@ -117,7 +117,7 @@ abstract class AuthToken extends Resource
      */
     public static function singularLabel(): string
     {
-        return trans_choice('Auth Tokens', 1);
+        return __('Auth Token');
     }
 
     /**
@@ -127,6 +127,6 @@ abstract class AuthToken extends Resource
      */
     public static function group()
     {
-        return trans_choice('Platforms', 1);
+        return __('Platform');
     }
 }

@@ -63,7 +63,7 @@ abstract class WebhookConfiguration extends Resource
                 ),
             Text::make(__('Auth Token'), 'auth_token')->rules(['required', 'max:255']),
 
-            BelongsTo::make(trans_choice('Platforms', 1), 'platform', $this->getPlatformNovaResource())->sortable()->rules(['required']),
+            BelongsTo::make(__('Platform'), 'platform', $this->getPlatformNovaResource())->sortable()->rules(['required']),
 
         ];
     }
@@ -112,7 +112,7 @@ abstract class WebhookConfiguration extends Resource
      */
     public static function label(): string
     {
-        return trans_choice('Webhook Configurations', 2);
+        return __('Webhook Configurations');
     }
 
     /**
@@ -120,7 +120,7 @@ abstract class WebhookConfiguration extends Resource
      */
     public static function singularLabel(): string
     {
-        return trans_choice('Webhook Configuration', 1);
+        return __('Webhook Configuration');
     }
 
     /**
@@ -130,6 +130,6 @@ abstract class WebhookConfiguration extends Resource
      */
     public static function group()
     {
-        return trans_choice('Platforms', 1);
+        return __('Platform');
     }
 }
