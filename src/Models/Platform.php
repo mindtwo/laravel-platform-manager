@@ -119,7 +119,7 @@ class Platform extends Model
      */
     public function getDefaultLocaleAttribute(?string $value=null): string
     {
-        return $value ?? config('platform-resolver.default_locale') ?? 'en';
+        return $value ?? config('platform-resolver.default_locale') ?? 'en-EN';
     }
 
     /**
@@ -134,6 +134,6 @@ class Platform extends Model
             return json_decode($value, true);
         }
 
-        return $value ?? config('platform-resolver.available_locales') ?? ['en'];
+        return $value ?? config('platform-resolver.available_locales') ?? ['en-EN'];
     }
 }

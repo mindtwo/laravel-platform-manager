@@ -37,9 +37,9 @@ return [
         'endpoint' => '/v1/webhooks',
     ],
 
-    'default_locale' => 'en',
+    'default_locale' => 'en-EN',
 
     'available_locales' => [
-        'en',
+        'en-EN',
     ],
 ];
