@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use mindtwo\LaravelAutoCreateUuid\AutoCreateUuid;
+use Illuminate\Support\Str;
 
 /**
  * @property int $id
@@ -29,7 +30,14 @@ class ExternalPlatform extends Model
     public function webhookEndpoint(): Attribute
     {
         return Attribute::make(function () {
-            return "https://{$this->hostname}{$this->webhook_path}";
+            return Str::of($this->webhook_path)
+                ->trim('/')
+                ->prepend('/')
+                ->prepend($this->hostname)
+                ->when(! str_starts_with($this->hostname, 'https://'), function ($string) {
+                    return $string->prepend('https://');
+                })
+                ->toString();
         });
     }
 

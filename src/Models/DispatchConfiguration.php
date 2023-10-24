@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use mindtwo\LaravelAutoCreateUuid\AutoCreateUuid;
+use Illuminate\Support\Str;
 
 /**
  * @property int $id
@@ -57,7 +58,14 @@ class DispatchConfiguration extends Model
             }
 
             if (! is_null($this->platform)) {
-                return "https://{$this->platform->hostname}{$this->url}";
+                return Str::of($this->url)
+                    ->trim('/')
+                    ->prepend('/')
+                    ->prepend($this->platform->hostname)
+                    ->when(! str_starts_with($this->hostname, 'https://'), function ($string) {
+                        return $string->prepend('https://');
+                    })
+                    ->toString();
             }
 
             throw new \Exception("Invalid configuration exception. The configuration for {$this->hook} has no valid endpoint configured.", 1);
