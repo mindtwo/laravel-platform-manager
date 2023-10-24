@@ -17,8 +17,8 @@ beforeEach(function () {
 it('it uses the default locale', function () {
     $platform = (new PlatformFactory())->main()->create();
 
-    assertEquals('en', $platform->default_locale);
-    assertContains('en', $platform->available_locales);
+    assertEquals(config('platform-resolver.default_locale'), $platform->default_locale);
+    assertContains(config('platform-resolver.default_locale'), $platform->available_locales);
 });
 
 it('it uses the platform locale', function () {
@@ -30,4 +30,3 @@ it('it uses the platform locale', function () {
     assertEquals('de', $platform->default_locale);
     assertContains('de', $platform->available_locales);
 });
-
