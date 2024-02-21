@@ -11,7 +11,6 @@ use Illuminate\Http\Client\RequestException;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 use mindtwo\LaravelPlatformManager\Models\V2\WebhookRequest;
 use mindtwo\LaravelPlatformManager\Webhooks\Webhook;
 
