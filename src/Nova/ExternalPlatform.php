@@ -13,6 +13,13 @@ class ExternalPlatform extends Resource
     public static string $model = \mindtwo\LaravelPlatformManager\Models\ExternalPlatform::class;
 
     /**
+     * The single value that should be used to represent the resource when being displayed.
+     *
+     * @var string
+     */
+    public static $title = 'name';
+
+    /**
      * Get the fields displayed by the resource.
      *
      * @return array
