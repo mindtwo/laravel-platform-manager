@@ -39,6 +39,7 @@ class HandleAsyncWebhookRequest implements ShouldQueue
         private string $webhookClz,
         private array $payload,
         private WebhookRequest $request,
+        public $timeout,
     ) {
     }
 

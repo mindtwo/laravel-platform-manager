@@ -22,6 +22,20 @@ return [
     'webhooks' => [
 
         /**
+         * The queue name for the webhook.
+         *
+         * default: 'default'
+         */
+        'default_queue' => 'default',
+
+        /**
+         * The default timeout for the webhook.
+         *
+         * default: 30
+         */
+        'default_timeout' => 30,
+
+        /**
          * Enable or disable whether this application
          * can receive webhook requests.
          *

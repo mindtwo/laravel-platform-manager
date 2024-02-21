@@ -29,6 +29,20 @@ abstract class Webhook
     protected $platform;
 
     /**
+     * The queue name for the webhook.
+     *
+     * @var ?string
+     */
+    protected ?string $queueName = null;
+
+    /**
+     * The timeout for the webhook.
+     *
+     * @var ?int
+     */
+    protected ?int $timeout = null;
+
+    /**
      * Handle the webhook payload after validation.
      */
     abstract public function handle(array $payload): array|Arrayable|JsonSerializable;
@@ -43,6 +57,30 @@ abstract class Webhook
         }
 
         return Str::of(static::class)->afterLast('\\')->replace('Webhook', '')->kebab()->__toString();
+    }
+
+    /**
+     * Get the queue name for the webhook.
+     */
+    public function queueName(): string
+    {
+        if ($this->queueName !== null) {
+            return $this->queueName;
+        }
+
+        return config('platform-resolver.webhooks.default_queue');
+    }
+
+    /**
+     * Get the timeout for the webhook.
+     */
+    public function timeout(): int
+    {
+        if ($this->timeout !== null) {
+            return $this->timeout;
+        }
+
+        return config('platform-resolver.webhooks.default_timeout');
     }
 
     /**

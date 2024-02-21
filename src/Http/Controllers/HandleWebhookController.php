@@ -72,7 +72,8 @@ class HandleWebhookController extends Controller
             $webhook::class,
             $request->validated('data'),
             $requestModel,
-        );
+            $webhook->timeout(),
+        )->onQueue($webhook->queueName());
 
         return response()->json([
             'message' => 'Webhook queued successfully.',
