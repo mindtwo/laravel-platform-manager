@@ -5,6 +5,7 @@ namespace mindtwo\LaravelPlatformManager\Webhooks;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Str;
 use JsonSerializable;
+use mindtwo\LaravelPlatformManager\Models\Platform;
 use mindtwo\LaravelPlatformManager\Traits\ExcludeKeysInLog;
 
 abstract class Webhook
@@ -21,6 +22,13 @@ abstract class Webhook
     protected ?string $name = null;
 
     /**
+     * The platform the webhook is registered for.
+     *
+     * @var Platform
+     */
+    protected $platform;
+
+    /**
      * Handle the webhook payload after validation.
      */
     abstract public function handle(array $payload): array|Arrayable|JsonSerializable;
@@ -35,6 +43,14 @@ abstract class Webhook
         }
 
         return Str::of(static::class)->afterLast('\\')->replace('Webhook', '')->kebab()->__toString();
+    }
+
+    /**
+     * Set the platform the webhook is registered for.
+     */
+    public function setPlatform(Platform $platform): void
+    {
+        $this->platform = $platform;
     }
 
     /**

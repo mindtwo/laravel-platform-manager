@@ -5,12 +5,14 @@ namespace mindtwo\LaravelPlatformManager\Models\V2;
 use Carbon\Carbon;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use mindtwo\LaravelPlatformManager\Builders\WebhookRequestBuilder;
 
 /**
  * @property int $id
+ * @property ?int $platform_id
  * @property string $ulid
  * @property string|null $hook
  * @property string|null $requested_from
@@ -31,6 +33,7 @@ class WebhookRequest extends Model
      * @var array<string>
      */
     protected $fillable = [
+        'platform_id',
         'hook',
         'ulid',
         'requested_from',
@@ -51,6 +54,11 @@ class WebhookRequest extends Model
     public function response(): MorphOne
     {
         return $this->morphOne(WebhookResponse::class, 'responseable');
+    }
+
+    public function platform(): BelongsTo
+    {
+        return $this->belongsTo(config('platform-resolver.model'), 'platform_id');
     }
 
     public static function query(): WebhookRequestBuilder|Builder

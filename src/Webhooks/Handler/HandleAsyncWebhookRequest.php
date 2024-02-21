@@ -11,6 +11,7 @@ use Illuminate\Http\Client\RequestException;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use mindtwo\LaravelPlatformManager\Models\V2\WebhookRequest;
 use mindtwo\LaravelPlatformManager\Webhooks\Webhook;
 
@@ -39,7 +40,6 @@ class HandleAsyncWebhookRequest implements ShouldQueue
         private array $payload,
         private WebhookRequest $request,
     ) {
-        $this->resolveWebhook();
     }
 
     public function request(): WebhookRequest
@@ -58,6 +58,7 @@ class HandleAsyncWebhookRequest implements ShouldQueue
             $this->webhook = app()->make($this->webhookClz);
         }
 
+        $this->webhook->setPlatform($this->request->platform);
         return $this->webhook;
     }
 

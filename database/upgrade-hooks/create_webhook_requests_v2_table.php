@@ -17,6 +17,8 @@ return new class extends Migration
             Schema::create('webhook_requests_v2', function (Blueprint $table) {
                 $table->id();
 
+                $table->unsignedBigInteger('platform_id')->nullable();
+
                 $table->ulid('ulid')->index();
 
                 $table->string('hook');

@@ -6,6 +6,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Routing\Controller;
 use mindtwo\LaravelPlatformManager\Http\Requests\StoreWebhookV2Request;
 use mindtwo\LaravelPlatformManager\Models\V2\WebhookRequest;
+use mindtwo\LaravelPlatformManager\Services\PlatformResolver;
 use mindtwo\LaravelPlatformManager\Services\WebhookResolver;
 use mindtwo\LaravelPlatformManager\Webhooks\Concerns\RespondsSync;
 use mindtwo\LaravelPlatformManager\Webhooks\Handler\HandleAsyncWebhookRequest;
@@ -15,6 +16,7 @@ class HandleWebhookController extends Controller
 {
     public function __construct(
         private WebhookResolver $resolver,
+        private PlatformResolver $platformResolver,
     ) {
 
     }
@@ -28,6 +30,9 @@ class HandleWebhookController extends Controller
     public function __invoke(StoreWebhookV2Request $request): JsonResponse
     {
         $hookName = $request->validated('hook');
+
+        // Get current platform
+        $platform = $this->platformResolver->getCurrentPlatform();
 
         // Resolve webhook
         // WebhookResolver::resolve() returns an instance of the webhook class or exits the process with an error 404.
@@ -45,6 +50,10 @@ class HandleWebhookController extends Controller
             'response_url' => $request->validated('response_url'),
             'payload' => $webhook->payloadToSave($data),
         ]);
+
+        // TODO check why we need to do it this way. platform_id is fillable???????????
+        $requestModel->platform_id = $platform->id;
+        $requestModel->save();
 
         // Handle sync webhook
         if ($webhook instanceof RespondsSync) {
