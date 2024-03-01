@@ -63,7 +63,6 @@ class DispatchHandler
             /** @var DispatchConfiguration $config */
             $config = $platform->dispatchConfigurations()
                 ->where('hook', $hookName)
-                ->where('platform_id', $platform->id)
                 ->with('platform')
                 ->firstOrFail();
         } catch (\Throwable $th) {
