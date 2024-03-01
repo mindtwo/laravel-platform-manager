@@ -10,6 +10,7 @@ use mindtwo\LaravelPlatformManager\Enums\DispatchStatusEnum;
 use mindtwo\LaravelPlatformManager\Models\DispatchConfiguration;
 use mindtwo\LaravelPlatformManager\Models\Platform;
 use mindtwo\LaravelPlatformManager\Models\V2\WebhookDispatch;
+use mindtwo\LaravelPlatformManager\Services\PlatformResolver;
 use mindtwo\LaravelPlatformManager\Webhooks\Concerns\SendsEmptyPayload;
 use mindtwo\LaravelPlatformManager\Webhooks\Dispatch;
 
@@ -48,13 +49,23 @@ class DispatchHandler
         }
     }
 
+    public function sendToCurrentPlatform(): bool
+    {
+        $platformResolver = app()->make(PlatformResolver::class);
+        return $this->sendToPlatform($platformResolver->getCurrentPlatform());
+    }
+
     public function sendToPlatform(Platform $platform): bool
     {
         $hookName = $this->dispatchInstance->hook();
 
         try {
             /** @var DispatchConfiguration $config */
-            $config = $platform->dispatchConfigurations()->where('hook', $hookName)->firstOrFail();
+            $config = $platform->dispatchConfigurations()
+                ->where('hook', $hookName)
+                ->where('platform_id', $platform->id)
+                ->with('platform')
+                ->firstOrFail();
         } catch (\Throwable $th) {
             throw new HttpResponseException(
                 response()->json([
