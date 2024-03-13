@@ -18,21 +18,21 @@
         }
     ],
     "require": {
-        "php": "^8.0|^8.1",
+        "php": "^8.0|^8.1|^8.2",
         "mindtwo/native-enum": "^1.7",
         "mindtwo/laravel-auto-create-uuid": "^2.6",
-        "laravel/framework": "^9.0|^10.0"
+        "laravel/framework": "^9.0|^10.0|^11.0"
     },
     "require-dev": {
         "laravel/pint": "^1.4",
-        "orchestra/testbench": "^7.0|^8.0",
+        "orchestra/testbench": "^7.0|^8.0|^9.0",
         "pestphp/pest": "^1.0|^2.0",
         "pestphp/pest-plugin-laravel": "^1.0|^2.0",
         "pestphp/pest-plugin-watch": "^1.0|^2.0",
         "laravel/nova": "^4.26",
-        "nunomaduro/larastan": "^2.0",
         "guzzlehttp/guzzle": "^7.8",
-        "guzzlehttp/promises": "^2.0"
+        "guzzlehttp/promises": "^2.0",
+        "larastan/larastan": "^2.9"
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
