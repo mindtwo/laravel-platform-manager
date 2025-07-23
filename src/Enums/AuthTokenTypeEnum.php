@@ -18,7 +18,7 @@ enum AuthTokenTypeEnum: int implements LocalizedEnum
 
     public function getHeaderName(): string
     {
-        return config('platform-resolver.headerNames.'.$this->value);
+        return config('platform-resolver.header_names.'.$this->value);
     }
 
     public static function fromString(string $value): self

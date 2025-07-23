@@ -1,5 +1,6 @@
 <?php
 
+// TODO: rename
 return [
 
     /**
@@ -10,11 +11,12 @@ return [
     /**
      *  Header Names used to retrieve platform
      */
-    'headerNames' => [
+    'header_names' => [
         \mindtwo\LaravelPlatformManager\Enums\AuthTokenTypeEnum::Public() => 'X-Context-Platform-Public-Auth-Token',
         \mindtwo\LaravelPlatformManager\Enums\AuthTokenTypeEnum::Secret() => 'X-Context-Platform-Secret-Auth-Token',
     ],
 
+    // TODO: move webhooks to separate package
     /**
      * Settings regarding Webhook handling and activation.
      * See seperate webhook config to define webhooks.

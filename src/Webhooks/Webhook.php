@@ -68,7 +68,7 @@ abstract class Webhook
             return $this->queueName;
         }
 
-        return config('platform-resolver.webhooks.default_queue');
+        return config('platform-resolver.webhooks.default_queue', 'default');
     }
 
     /**
@@ -80,7 +80,7 @@ abstract class Webhook
             return $this->timeout;
         }
 
-        return config('platform-resolver.webhooks.default_timeout');
+        return config('platform-resolver.webhooks.default_timeout', 60);
     }
 
     /**
