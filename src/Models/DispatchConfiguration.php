@@ -12,18 +12,16 @@ use Illuminate\Support\Str;
 /**
  * @property int $id
  * @property string $uuid
+ * @property string $hook
+ * @property string|null $description
+ * @property string|null $url
+ * @property string|null $auth_token
  * @property int|null $platform_id
  * @property int|null $external_platform_id
- * @property string $hook
- * @property string $auth_token
- * @property ?string $url
- * @property string $endpoint
- * @property ?Platform $platform
- * @property ?ExternalPlatform $external_platform
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- *
- * @method static query()
+ * @property ?Platform $platform
+ * @property ?ExternalPlatform $external_platform
  */
 class DispatchConfiguration extends Model
 {
@@ -36,7 +34,7 @@ class DispatchConfiguration extends Model
      */
     protected $fillable = [
         'hook',
-        'active',
+        'description',
         'url',
         'auth_token',
         'platform_id',
