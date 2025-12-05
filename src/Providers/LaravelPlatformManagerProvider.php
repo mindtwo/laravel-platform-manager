@@ -59,7 +59,6 @@ class LaravelPlatformManagerProvider extends ServiceProvider
 
         $this->publishes([
             $configPath => config_path('platform-resolver.php'),
-            $hookPath => config_path('webhooks.php'),
         ], ['config', 'platform-resolver']);
     }
 
