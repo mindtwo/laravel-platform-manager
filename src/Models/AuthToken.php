@@ -37,6 +37,13 @@ class AuthToken extends Model
         'expired_at' => 'datetime',
     ];
 
+    protected $fillable = [
+        'platform_id',
+        'scopes',
+        'token',
+        'expired_at',
+    ];
+
     protected static function booted(): void
     {
         static::creating(function (self $model) {

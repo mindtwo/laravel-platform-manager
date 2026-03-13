@@ -44,6 +44,18 @@ class Platform extends Model
     use SoftDeletes;
 
     /**
+     * @var array<int, string>
+     */
+    protected $fillable = [
+        'is_active',
+        'hostname',
+        'additional_hostnames',
+        'context',
+        'scopes',
+        'settings',
+    ];
+
+    /**
      * The attributes that should be cast.
      *
      * @var array<string, string>

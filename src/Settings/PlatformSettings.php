@@ -34,7 +34,7 @@ class PlatformSettings
 
             if (property_exists($instance, $key)) {
                 $instance->{$key} = in_array($key, $instance->encrypted)
-                    ? decrypt($value, false)
+                    ? decrypt($value)
                     : $value;
             } else {
                 $instance->overflow[$key] = $value;
