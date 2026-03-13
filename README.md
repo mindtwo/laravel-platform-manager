@@ -450,6 +450,65 @@ Supported `applyFilters` parameters: `is_active`, `hostname`, `context`.
 
 ---
 
+## Testing
+
+### `PlatformFake`
+
+Set a fake platform on the singleton without hitting the database. Useful in any test that exercises code which calls `platform()`.
+
+```php
+use mindtwo\LaravelPlatformManager\Testing\PlatformFake;
+
+PlatformFake::make(['hostname' => 'test.com']);
+
+// With resolver and scopes
+PlatformFake::make(['hostname' => 'test.com'], resolver: 'token', scopes: ['read', 'write']);
+
+// Reset back to unresolved
+PlatformFake::reset();
+```
+
+### `InteractsWithPlatform` trait
+
+Add to your test case for a cleaner API and automatic teardown helpers:
+
+```php
+use mindtwo\LaravelPlatformManager\Testing\InteractsWithPlatform;
+
+class MyTest extends TestCase
+{
+    use InteractsWithPlatform;
+
+    protected function tearDown(): void
+    {
+        $this->clearPlatform();
+        parent::tearDown();
+    }
+
+    public function test_something(): void
+    {
+        $this->setPlatform(['hostname' => 'test.com'], scopes: ['read']);
+
+        $this->assertPlatformResolved();
+        $this->assertPlatformCan('read');
+        $this->assertPlatformCannot('write');
+        $this->assertPlatformResolver('fake');
+    }
+}
+```
+
+| Method | Description |
+|--------|-------------|
+| `setPlatform(array $attributes, string $resolver, array $scopes)` | Resolve a fake platform |
+| `clearPlatform()` | Reset the singleton to unresolved |
+| `assertPlatformResolved()` | Assert a platform is resolved |
+| `assertPlatformNotResolved()` | Assert no platform is resolved |
+| `assertPlatformCan(string $scope)` | Assert the platform has a scope |
+| `assertPlatformCannot(string $scope)` | Assert the platform lacks a scope |
+| `assertPlatformResolver(string $resolver)` | Assert the resolver name |
+
+---
+
 ## Upgrade Guide
 
 ### Upgrading from v2 to v4
