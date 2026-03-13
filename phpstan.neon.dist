@@ -1,6 +1,3 @@
-includes:
-    - ./vendor/nunomaduro/larastan/extension.neon
-
 parameters:
 
     # checkUnusedViews: true
@@ -12,7 +9,7 @@ parameters:
     level: 8
 
     ignoreErrors:
+        - identifier: trait.unused
+        - identifier: missingType.iterableValue
+        - identifier: new.static
     excludePaths:
-
-    checkMissingIterableValueType: false
-    checkGenericClassInNonGenericObjectType: false

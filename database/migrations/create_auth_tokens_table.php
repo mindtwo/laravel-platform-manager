@@ -6,34 +6,23 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
-    public function up()
+    public function up(): void
     {
         if (! Schema::hasTable('auth_tokens')) {
             Schema::create('auth_tokens', function (Blueprint $table) {
                 $table->id();
-                $table->foreignIdFor(config('auth.providers.users.model'))->nullable();
-                $platform = $table->foreignIdFor(config('platform-resolver.model'));
-                $table->smallInteger('type');
-                $table->string('description')->nullable();
-                $token = $table->string('token', 75)->unique();
+                $table->foreignIdFor(config('platform.model'), 'platform_id')
+                    ->constrained('platforms')
+                    ->cascadeOnDelete();
+                $table->json('scopes')->default('[]');
+                $table->string('token', 75)->unique();
+                $table->datetime('expired_at')->nullable();
                 $table->timestamps();
-                $table->softDeletes();
-                $table->unique([$platform->name, $token->name]);
             });
         }
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('auth_tokens');
     }

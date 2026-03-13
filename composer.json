@@ -18,28 +18,30 @@
         }
     ],
     "require": {
-        "php": "^8.0||^8.1||^8.2||^8.3||^8.4",
-        "mindtwo/native-enum": "^1.7",
-        "mindtwo/laravel-auto-create-uuid": "^2.6",
-        "laravel/framework": "^9.0||^10.0||^11.0||^12.0"
+        "php": "^8.3||^8.4||^8.5",
+        "laravel/framework": "^12.0",
+        "chiiya/laravel-utilities": "^5.7"
     },
     "require-dev": {
         "laravel/pint": "^1.4",
-        "orchestra/testbench": "^7.0||^8.0||^9.0||^10.0",
-        "pestphp/pest": "^2.0||^3.0",
+        "orchestra/testbench": "^10.0",
+        "pestphp/pest": "^3.0",
         "pestphp/pest-plugin-arch": "^3.0",
         "pestphp/pest-plugin-laravel": "^3.0",
-        "phpstan/extension-installer": "^1.3||^2.0",
-        "phpstan/phpstan-deprecation-rules": "^1.1||^2.0",
-        "laravel/nova": "^4.26",
-        "larastan/larastan": "^2.9||^3.0"
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan-deprecation-rules": "^2.0",
+        "larastan/larastan": "^3.0",
+        "barryvdh/laravel-ide-helper": "^3.6"
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
     "autoload": {
         "psr-4": {
             "mindtwo\\LaravelPlatformManager\\": "src/"
-        }
+        },
+        "files": [
+            "src/helpers.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
@@ -49,7 +51,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "mindtwo\\LaravelPlatformManager\\Providers\\LaravelPlatformManagerProvider"
+                "mindtwo\\LaravelPlatformManager\\LaravelPlatformManagerProvider"
             ],
             "aliases": {}
         }

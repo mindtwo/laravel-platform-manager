@@ -3,36 +3,45 @@
 namespace mindtwo\LaravelPlatformManager\Models;
 
 use Carbon\Carbon;
-use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Contracts\Database\Query\Builder as QueryBuilder;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use mindtwo\LaravelAutoCreateUuid\AutoCreateUuid;
-use mindtwo\LaravelPlatformManager\Builders\PlatformBuilder;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use mindtwo\LaravelPlatformManager\Casts\AsSettings;
+use mindtwo\LaravelPlatformManager\Settings\PlatformSettings;
 
 /**
  * @property int $id
  * @property string $uuid
- * @property int|null $owner_id
- * @property bool $is_main
  * @property bool $is_active
- * @property bool $is_headless
- * @property string|null $name
  * @property string|null $hostname
- * @property array|null $additional_hostnames
+ * @property array<string>|null $additional_hostnames
+ * @property string|null $context
+ * @property array<string>|null $scopes
+ * @property PlatformSettings $settings
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
- *
- * @method static PlatformBuilder query()
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \mindtwo\LaravelPlatformManager\Models\AuthToken> $authTokens
+ * @property-read int|null $auth_tokens_count
+ * @method static Builder<static>|Platform byContext(string $context)
+ * @method static Builder<static>|Platform byHostname(string $hostname)
+ * @method static Builder<static>|Platform byToken(string $token)
+ * @method static Builder<static>|Platform isActive()
+ * @method static Builder<static>|Platform newModelQuery()
+ * @method static Builder<static>|Platform newQuery()
+ * @method static Builder<static>|Platform onlyTrashed()
+ * @method static Builder<static>|Platform query()
+ * @method static Builder<static>|Platform withTrashed(bool $withTrashed = true)
+ * @method static Builder<static>|Platform withoutTrashed()
+ * @mixin \Eloquent
  */
 class Platform extends Model
 {
     use SoftDeletes;
-    use AutoCreateUuid;
-
-    // TODO implement contract and move to config?
-    protected static string $authTokenModel = AuthToken::class;
 
     /**
      * The attributes that should be cast.
@@ -40,100 +49,85 @@ class Platform extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'is_main' => 'boolean',
-        'is_active' => 'boolean',
-        'is_headless' => 'boolean',
+        'is_active'            => 'boolean',
         'additional_hostnames' => 'array',
-        'available_locales' => 'array',
+        'scopes'               => 'array',
+        'settings'             => AsSettings::class,
     ];
 
     /**
-     * The accessors to append to the model's array form.
+     * Read a setting value using dot notation.
+     */
+    public function setting(string $key, mixed $default = null): mixed
+    {
+        return data_get($this->settings->toArray(), $key, $default);
+    }
+
+    /**
+     * Platform auth tokens.
      *
-     * @var array
+     * @return HasMany<AuthToken, $this>
      */
-    protected $appends = [
-        'default_locale',
-        'available_locales',
-    ];
-
-    /**
-     * Get url to logo file.
-     *
-     * @deprecated version 2.0.0
-     */
-    public function getLogoUrlAttribute(): string
+    public function authTokens(): HasMany
     {
-        return '';
+        return $this->hasMany(AuthToken::class, 'platform_id');
     }
 
-    /**
-     * Platform webhooks.
-     */
-    public function webhooks(): HasMany
+    // -------------------------------------------------------------------------
+    // Scopes
+    // -------------------------------------------------------------------------
+
+    /** @param Builder<Platform> $query */
+    public function scopeIsActive(Builder $query): void
     {
-        return $this->hasMany(Webhook::class, 'platform_id');
+        $query->where('is_active', true);
     }
 
-    /**
-     * Platform webhooks.
-     */
-    public function webhookConfigurations(): HasMany
+    /** @param Builder<Platform> $query */
+    public function scopeByHostname(Builder $query, string $hostname): void
     {
-        return $this->hasMany(WebhookConfiguration::class, 'platform_id');
+        $query->where(function ($q) use ($hostname) {
+            // Primary hostname: exact or wildcard pattern (e.g. *.app.tld, my.app.*)
+            $q->where('hostname', $hostname)
+                ->orWhereRaw("? LIKE REPLACE(hostname, '*', '%')", [$hostname]);
+
+            // Additional hostnames: exact or wildcard pattern via json_each
+            $q->orWhereRaw(
+                "EXISTS (SELECT 1 FROM json_each(additional_hostnames) WHERE ? LIKE REPLACE(value, '*', '%'))",
+                [$hostname]
+            );
+        });
     }
 
-    /**
-     * Platform dispatches.
-     *
-     * @return HasMany
-     */
-    public function dispatchConfigurations(): HasMany
+    /** @param Builder<Platform> $query */
+    public function scopeByToken(Builder $query, string $token): void
     {
-        return $this->hasMany(DispatchConfiguration::class, 'platform_id');
+        $query->whereExists(
+            fn (QueryBuilder $builder) => $builder->select(DB::raw(1))
+                ->from('auth_tokens')
+                ->whereColumn('auth_tokens.platform_id', 'platforms.id')
+                ->where('auth_tokens.token', $token)
+                ->where(fn ($q) => $q->whereNull('auth_tokens.expired_at')
+                    ->orWhere('auth_tokens.expired_at', '>', now()))
+        );
     }
 
-    /**
-     * Create a new Eloquent query builder for the model.
-     *
-     * @param  \Illuminate\Database\Query\Builder  $query
-     */
-    public function newEloquentBuilder($query): PlatformBuilder
+    /** @param Builder<Platform> $query */
+    public function scopeByContext(Builder $query, string $context): void
     {
-        return new PlatformBuilder($query);
+        $query->where('context', $context);
     }
 
-    /**
-     * Begin querying the model.
-     */
-    public static function query(): PlatformBuilder|Builder
-    {
-        return parent::query();
-    }
+    // -------------------------------------------------------------------------
+    // UUID creation
+    // -------------------------------------------------------------------------
 
-    /**
-     * Get the default locale.
-     *
-     * @param string|null $value
-     * @return string
-     */
-    public function getDefaultLocaleAttribute(?string $value=null): string
+    protected static function booted(): void
     {
-        return $value ?? config('platform-resolver.default_locale') ?? 'en-EN';
-    }
-
-    /**
-     * Get the available locales.
-     *
-     * @param array|string|null $value
-     * @return array|string[]
-     */
-    public function getAvailableLocalesAttribute(array|string|null $value=null): array
-    {
-        if (is_string($value)) {
-            return json_decode($value, true);
-        }
-
-        return $value ?? config('platform-resolver.available_locales') ?? ['en-EN'];
+        static::creating(function (self $model) {
+            if (empty($model->uuid)) {
+                $model->uuid = (string) Str::uuid();
+            }
+        });
     }
 }

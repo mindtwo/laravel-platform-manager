@@ -2,8 +2,7 @@
 
 namespace mindtwo\LaravelPlatformManager\Tests;
 
-use Illuminate\Contracts\Config\Repository;
-use mindtwo\LaravelPlatformManager\Providers\LaravelPlatformManagerProvider;
+use mindtwo\LaravelPlatformManager\LaravelPlatformManagerProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
 
 class TestCase extends Orchestra
@@ -23,12 +22,9 @@ class TestCase extends Orchestra
 
     /**
      * Define database migrations.
-     *
-     * @return void
      */
-    protected function defineDatabaseMigrations()
+    protected function defineDatabaseMigrations(): void
     {
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
-        $this->loadMigrationsFrom(__DIR__.'/../database/upgrade-hooks');
     }
 }

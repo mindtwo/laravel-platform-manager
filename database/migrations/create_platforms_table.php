@@ -6,38 +6,25 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
-    public function up()
+    public function up(): void
     {
         if (! Schema::hasTable('platforms')) {
             Schema::create('platforms', function (Blueprint $table) {
                 $table->id();
                 $table->uuid('uuid')->unique();
-                $table->foreignIdFor(config('auth.providers.users.model'), 'owner_id')->nullable();
-                $table->boolean('is_main')->default(0);
-                $table->boolean('is_active')->default(0);
-                $table->boolean('is_headless')->default(0);
-                $table->string('name')->nullable();
-                $table->string('hostname', 50)->nullable()->index();
-                $table->string('default_locale', 5)->nullable();
-                $table->json('available_locales')->nullable();
+                $table->boolean('is_active')->default(false)->index();
+                $table->string('hostname', 100)->nullable()->index();
                 $table->json('additional_hostnames')->nullable();
+                $table->string('context')->nullable()->unique();
+                $table->json('scopes')->nullable();
+                $table->json('settings')->nullable();
                 $table->timestamps();
                 $table->softDeletes();
             });
         }
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('platforms');
     }
