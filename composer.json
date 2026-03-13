@@ -61,11 +61,5 @@
             "pestphp/pest-plugin": true,
             "phpstan/extension-installer": true
         }
-    },
-    "repositories": [
-        {
-            "type": "composer",
-            "url": "https://repo.packagist.com/mindtwo/"
-        }
-    ]
+    }
 }
