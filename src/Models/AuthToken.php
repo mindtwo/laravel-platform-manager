@@ -2,75 +2,93 @@
 
 namespace mindtwo\LaravelPlatformManager\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
-use mindtwo\LaravelPlatformManager\Enums\AuthTokenTypeEnum;
 
 /**
  * @property int $id
- * @property int $user_id
  * @property int $platform_id
- * @property string $description
  * @property Platform $platform
- * @property AuthTokenTypeEnum $type
+ * @property array<string> $scopes
  * @property string $token
+ * @property Carbon|null $expired_at
  * @property Carbon $created_at
  * @property Carbon $updated_at
- * @property Carbon $deleted_at
+ * @method static Builder<static>|AuthToken newModelQuery()
+ * @method static Builder<static>|AuthToken newQuery()
+ * @method static Builder<static>|AuthToken notExpired()
+ * @method static Builder<static>|AuthToken query()
+ * @method static Builder<static>|AuthToken withScope(string $scope)
+ * @mixin \Eloquent
  */
 class AuthToken extends Model
 {
-    use HasFactory;
-    use SoftDeletes;
-
     /**
      * The attributes that should be cast.
      *
      * @var array<string, string>
      */
     protected $casts = [
-        'type' => AuthTokenTypeEnum::class,
+        'scopes'     => 'array',
+        'expired_at' => 'datetime',
     ];
 
-    /**
-     * Add start date on publish.
-     */
-    protected static function booted()
+    protected $fillable = [
+        'platform_id',
+        'scopes',
+        'token',
+        'expired_at',
+    ];
+
+    protected static function booted(): void
     {
-        parent::booted();
-
-        static::creating(function ($model) {
-            $model->user_id = Auth::user()?->id;
-
-            if (empty($model->type)) {
-                $model->type = AuthTokenTypeEnum::Secret();
-            }
-
+        static::creating(function (self $model) {
             if (empty($model->token)) {
                 $model->token = Hash::make(Str::random(75));
             }
         });
     }
 
-    /**
-     * Plattform.
-     */
-    public function platform(): BelongsTo
+    public function isExpired(): bool
     {
-        return $this->belongsTo(config('platform-resolver.model'), 'platform_id');
+        return $this->expired_at !== null && $this->expired_at->isPast();
+    }
+
+    public function hasScope(string $scope): bool
+    {
+        return in_array($scope, $this->scopes ?? []);
     }
 
     /**
-     * User.
+     * @param Builder<AuthToken> $query
      */
-    public function user(): BelongsTo
+    public function scopeNotExpired(Builder $query): void
     {
-        return $this->belongsTo(config('auth.providers.users.model'), 'user_id');
+        $query->where(function ($q) {
+            $q->whereNull('expired_at')->orWhere('expired_at', '>', now());
+        });
+    }
+
+    /**
+     * @param Builder<AuthToken> $query
+     * @return Builder<AuthToken>
+     */
+    public function scopeWithScope(Builder $query, string $scope): Builder
+    {
+        return $query->whereJsonContains('scopes', $scope);
+    }
+
+    /**
+     * Platform.
+     *
+     * @return BelongsTo<Platform, $this>
+     */
+    public function platform(): BelongsTo
+    {
+        return $this->belongsTo(Platform::class, 'platform_id');
     }
 }

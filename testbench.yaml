@@ -1,0 +1,3 @@
+providers:
+  - mindtwo\LaravelPlatformManager\LaravelPlatformManagerProvider
+  - Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider
