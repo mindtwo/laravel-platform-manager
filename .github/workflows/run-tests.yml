@@ -1,0 +1,39 @@
+name: Run Tests
+
+on:
+  pull_request:
+    branches:
+      - master
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
+          extensions: "dom, curl, libxml, mbstring, zip, fileinfo"
+          tools: "composer:v2"
+          coverage: xdebug
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Run tests with coverage
+        run: ./vendor/bin/pest --coverage --coverage-clover=coverage.xml
+
+      - name: Report coverage in PR
+        uses: danhunsaker/clover-reporter-action@v0.2.17-clover
+        if: github.event_name == 'pull_request'
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          clover-file: coverage.xml

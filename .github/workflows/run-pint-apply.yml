@@ -1,0 +1,50 @@
+# This workflow integrates Pint Scan with GitHub's code scanning feature
+# Laravel Pint is an opinionated PHP code style fixer for minimalists. Pint is built on top of PHP-CS-Fixer
+# Visit https://laravel.com/docs/9.x/pint for help
+name: Run Pint Apply
+
+# This section configures the trigger for the workflow. Feel free to customize depending on your convention
+on:
+  pull_request:
+    branches:
+      - master
+    types: [closed]
+  workflow_dispatch:
+
+jobs:
+  pint:
+    continue-on-error: true
+    if: github.event.pull_request.merged == true
+    runs-on: "ubuntu-latest"
+
+    steps:
+      - name: "Checkout code"
+        uses: "actions/checkout@v3"
+
+      - name: "Setup PHP"
+        uses: "shivammathur/setup-php@v2"
+        with:
+          php-version: "8.4"
+          extensions: "dom, curl, libxml, mbstring, zip, fileinfo"
+          tools: "composer:v2"
+          coverage: "none"
+
+      - name: "Install laravel/pint"
+        run: "composer global require laravel/pint --no-progress --dev"
+
+      - name: "Apply pint styles"
+        run: "pint"
+
+      - name: "Check for changes"
+        id: git-check
+        run: |
+          git diff --exit-code --quiet || echo "::set-output name=changed::true"
+
+      - name: "Commit changes"
+        if: steps.git-check.outputs.changed == 'true'
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add .
+          git commit -m "apply pint"
+          git push
