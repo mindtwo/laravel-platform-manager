@@ -12,6 +12,7 @@ return new class extends Migration
             Schema::create('platforms', function (Blueprint $table) {
                 $table->id();
                 $table->uuid('uuid')->unique();
+                $table->string('name')->nullable();
                 $table->boolean('is_active')->default(false)->index();
                 $table->string('hostname', 100)->nullable()->index();
                 $table->json('additional_hostnames')->nullable();

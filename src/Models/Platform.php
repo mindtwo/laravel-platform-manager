@@ -17,6 +17,7 @@ use mindtwo\LaravelPlatformManager\Settings\PlatformSettings;
 /**
  * @property int $id
  * @property string $uuid
+ * @property string|null $name
  * @property bool $is_active
  * @property string|null $hostname
  * @property array<string>|null $additional_hostnames
@@ -50,6 +51,7 @@ class Platform extends Model
      * @var array<int, string>
      */
     protected $fillable = [
+        'name',
         'is_active',
         'hostname',
         'additional_hostnames',
@@ -132,6 +134,8 @@ class Platform extends Model
     {
         $query->where('context', $context);
     }
+
+    // TODO - relationships?
 
     // -------------------------------------------------------------------------
     // UUID creation
