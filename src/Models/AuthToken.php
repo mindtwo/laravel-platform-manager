@@ -18,11 +18,13 @@ use Illuminate\Support\Str;
  * @property Carbon|null $expired_at
  * @property Carbon $created_at
  * @property Carbon $updated_at
+ *
  * @method static Builder<static>|AuthToken newModelQuery()
  * @method static Builder<static>|AuthToken newQuery()
  * @method static Builder<static>|AuthToken notExpired()
  * @method static Builder<static>|AuthToken query()
  * @method static Builder<static>|AuthToken withScope(string $scope)
+ *
  * @mixin \Eloquent
  */
 class AuthToken extends Model
@@ -33,7 +35,7 @@ class AuthToken extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'scopes'     => 'array',
+        'scopes' => 'array',
         'expired_at' => 'datetime',
     ];
 
@@ -64,7 +66,7 @@ class AuthToken extends Model
     }
 
     /**
-     * @param Builder<AuthToken> $query
+     * @param  Builder<AuthToken>  $query
      */
     public function scopeNotExpired(Builder $query): void
     {
@@ -74,7 +76,7 @@ class AuthToken extends Model
     }
 
     /**
-     * @param Builder<AuthToken> $query
+     * @param  Builder<AuthToken>  $query
      * @return Builder<AuthToken>
      */
     public function scopeWithScope(Builder $query, string $scope): Builder

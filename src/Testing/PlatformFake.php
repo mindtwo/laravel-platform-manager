@@ -2,6 +2,7 @@
 
 namespace mindtwo\LaravelPlatformManager\Testing;
 
+use Illuminate\Support\Str;
 use mindtwo\LaravelPlatformManager\Models\Platform as PlatformModel;
 use mindtwo\LaravelPlatformManager\Platform;
 
@@ -10,8 +11,8 @@ class PlatformFake
     /**
      * Set an unsaved platform model on the singleton — no database required.
      *
-     * @param array<string, mixed> $attributes
-     * @param array<string>        $scopes
+     * @param  array<string, mixed>  $attributes
+     * @param  array<string>  $scopes
      */
     public static function make(
         array $attributes = [],
@@ -23,8 +24,8 @@ class PlatformFake
 
         /** @var PlatformModel $model */
         $model = (new $modelClass)->forceFill(array_merge([
-            'id'        => 1,
-            'uuid'      => (string) \Illuminate\Support\Str::uuid(),
+            'id' => 1,
+            'uuid' => (string) Str::uuid(),
             'is_active' => true,
         ], $attributes));
 

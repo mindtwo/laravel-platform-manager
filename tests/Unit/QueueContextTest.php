@@ -9,7 +9,7 @@ uses(RefreshDatabase::class);
 
 describe('QueueContext', function () {
     it('captures platform context id when platform is resolved', function () {
-        $model = (new PlatformFactory())->create();
+        $model = (new PlatformFactory)->create();
 
         app(Platform::class)->set($model, 'test');
 
@@ -43,7 +43,7 @@ describe('QueueContext', function () {
     });
 
     it('restores platform context from captured id', function () {
-        $model = (new PlatformFactory())->create();
+        $model = (new PlatformFactory)->create();
 
         app(Platform::class)->set($model, 'host');
 

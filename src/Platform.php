@@ -121,7 +121,7 @@ class Platform
     {
         return [
             'platform_id' => $this->model?->getKey(),
-            'resolver'    => $this->resolverName,
+            'resolver' => $this->resolverName,
         ];
     }
 

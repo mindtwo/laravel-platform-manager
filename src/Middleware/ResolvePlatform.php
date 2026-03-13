@@ -40,11 +40,11 @@ class ResolvePlatform
 
         foreach ($resolveOrder as $resolver) {
             $resolvedPlatform = match ($resolver) {
-                'host'    => $this->repository->resolveByHostname($request),
-                'token'   => $this->resolveByToken($request),
+                'host' => $this->repository->resolveByHostname($request),
+                'token' => $this->resolveByToken($request),
                 'context' => $this->repository->resolveByContext($request),
                 'session' => $this->repository->resolveBySession($request),
-                default   => null,
+                default => null,
             };
 
             if ($resolvedPlatform !== null) {

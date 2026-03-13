@@ -1,10 +1,14 @@
 <?php
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use mindtwo\LaravelPlatformManager\Middleware\ResolvePlatform;
 use mindtwo\LaravelPlatformManager\Models\AuthToken;
 use mindtwo\LaravelPlatformManager\Models\Platform as PlatformModel;
 use mindtwo\LaravelPlatformManager\Platform;
 use mindtwo\LaravelPlatformManager\Tests\Fake\PlatformFactory;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 uses(RefreshDatabase::class);
 
@@ -18,7 +22,7 @@ describe('PlatformContext', function () {
         });
 
         it('can set and resolve a platform on the context', function () {
-            $model = (new PlatformFactory())->create();
+            $model = (new PlatformFactory)->create();
 
             $platform = app(Platform::class);
             $platform->set($model, 'test');
@@ -29,7 +33,7 @@ describe('PlatformContext', function () {
         });
 
         it('can proxy property reads to the underlying model', function () {
-            $model = (new PlatformFactory())->create(['hostname' => 'example.com']);
+            $model = (new PlatformFactory)->create(['hostname' => 'example.com']);
 
             $platform = app(Platform::class);
             $platform->set($model, 'test');
@@ -39,7 +43,7 @@ describe('PlatformContext', function () {
         });
 
         it('can restore from id', function () {
-            $model = (new PlatformFactory())->create();
+            $model = (new PlatformFactory)->create();
 
             $platform = app(Platform::class);
             $platform->restoreFromId($model->id);
@@ -50,7 +54,7 @@ describe('PlatformContext', function () {
         });
 
         it('can serialize for queue', function () {
-            $model = (new PlatformFactory())->create();
+            $model = (new PlatformFactory)->create();
 
             $platform = app(Platform::class);
             $platform->set($model, 'host');
@@ -64,8 +68,8 @@ describe('PlatformContext', function () {
 
     describe('use()', function () {
         it('temporarily switches the platform and restores it after', function () {
-            $original = (new PlatformFactory())->create(['hostname' => 'original.com']);
-            $temporary = (new PlatformFactory())->create(['hostname' => 'temporary.com']);
+            $original = (new PlatformFactory)->create(['hostname' => 'original.com']);
+            $temporary = (new PlatformFactory)->create(['hostname' => 'temporary.com']);
 
             $platform = app(Platform::class);
             $platform->set($original, 'host');
@@ -82,7 +86,7 @@ describe('PlatformContext', function () {
         });
 
         it('returns the callback return value', function () {
-            $model = (new PlatformFactory())->create();
+            $model = (new PlatformFactory)->create();
 
             $result = app(Platform::class)->use($model, fn () => 'result');
 
@@ -90,15 +94,15 @@ describe('PlatformContext', function () {
         });
 
         it('restores previous platform even when the callback throws', function () {
-            $original = (new PlatformFactory())->create(['hostname' => 'original.com']);
-            $temporary = (new PlatformFactory())->create(['hostname' => 'temporary.com']);
+            $original = (new PlatformFactory)->create(['hostname' => 'original.com']);
+            $temporary = (new PlatformFactory)->create(['hostname' => 'temporary.com']);
 
             $platform = app(Platform::class);
             $platform->set($original, 'host');
 
             try {
-                $platform->use($temporary, fn () => throw new \RuntimeException('boom'));
-            } catch (\RuntimeException) {
+                $platform->use($temporary, fn () => throw new RuntimeException('boom'));
+            } catch (RuntimeException) {
             }
 
             expect($platform->hostname)->toBe('original.com');
@@ -107,16 +111,16 @@ describe('PlatformContext', function () {
 
     describe('middleware resolution', function () {
         it('resolves by hostname', function () {
-            $model = (new PlatformFactory())->create(['hostname' => 'example.com']);
+            $model = (new PlatformFactory)->create(['hostname' => 'example.com']);
 
-            $middleware = app(\mindtwo\LaravelPlatformManager\Middleware\ResolvePlatform::class);
-            $request = \Illuminate\Http\Request::create('http://example.com/');
+            $middleware = app(ResolvePlatform::class);
+            $request = Request::create('http://example.com/');
             $called = false;
 
             $middleware->handle($request, function () use (&$called) {
                 $called = true;
 
-                return new \Illuminate\Http\Response();
+                return new Response;
             }, 'host');
 
             $platform = app(Platform::class);
@@ -127,18 +131,18 @@ describe('PlatformContext', function () {
         });
 
         it('throws when no platform matches', function () {
-            $middleware = app(\mindtwo\LaravelPlatformManager\Middleware\ResolvePlatform::class);
-            $request = \Illuminate\Http\Request::create('http://example.com/');
+            $middleware = app(ResolvePlatform::class);
+            $request = Request::create('http://example.com/');
 
-            $middleware->handle($request, fn () => new \Illuminate\Http\Response(), 'host');
-        })->throws(\Symfony\Component\HttpKernel\Exception\HttpException::class);
+            $middleware->handle($request, fn () => new Response, 'host');
+        })->throws(HttpException::class);
     });
 
     describe('token resolver', function () {
         it('resolves platform by token', function () {
-            $model = (new PlatformFactory())->create();
+            $model = (new PlatformFactory)->create();
 
-            $token = new AuthToken();
+            $token = new AuthToken;
             $token->platform_id = $model->id;
             $token->save();
 
@@ -153,9 +157,9 @@ describe('PlatformContext', function () {
         });
 
         it('resolves platform by token with read scope', function () {
-            $model = (new PlatformFactory())->create();
+            $model = (new PlatformFactory)->create();
 
-            $token = new AuthToken();
+            $token = new AuthToken;
             $token->platform_id = $model->id;
             $token->scopes = ['read'];
             $token->save();
@@ -173,7 +177,7 @@ describe('PlatformContext', function () {
         });
 
         it('can() returns false when resolver is not token', function () {
-            $model = (new PlatformFactory())->create();
+            $model = (new PlatformFactory)->create();
 
             $platform = app(Platform::class);
             $platform->set($model, 'host');
@@ -182,7 +186,7 @@ describe('PlatformContext', function () {
         });
 
         it('can() returns false when token lacks the requested scope', function () {
-            $model = (new PlatformFactory())->create();
+            $model = (new PlatformFactory)->create();
 
             $platform = app(Platform::class);
             $platform->set($model, 'token', ['read']);
@@ -191,14 +195,14 @@ describe('PlatformContext', function () {
         });
 
         it('resolves via middleware by token header', function () {
-            $model = (new PlatformFactory())->create();
+            $model = (new PlatformFactory)->create();
             $token = AuthToken::create(['platform_id' => $model->id, 'scopes' => ['read']]);
 
-            $middleware = app(\mindtwo\LaravelPlatformManager\Middleware\ResolvePlatform::class);
-            $request = \Illuminate\Http\Request::create('/');
+            $middleware = app(ResolvePlatform::class);
+            $request = Request::create('/');
             $request->headers->set('X-Platform-Token', $token->token);
 
-            $middleware->handle($request, fn () => new \Illuminate\Http\Response(), 'token');
+            $middleware->handle($request, fn () => new Response, 'token');
 
             $platform = app(Platform::class);
             expect($platform->isResolved())->toBeTrue();
@@ -208,14 +212,14 @@ describe('PlatformContext', function () {
         });
 
         it('merges platform baseline scopes with token scopes', function () {
-            $model = (new PlatformFactory())->create(['scopes' => ['read']]);
+            $model = (new PlatformFactory)->create(['scopes' => ['read']]);
             $token = AuthToken::create(['platform_id' => $model->id, 'scopes' => ['write']]);
 
-            $middleware = app(\mindtwo\LaravelPlatformManager\Middleware\ResolvePlatform::class);
-            $request = \Illuminate\Http\Request::create('/');
+            $middleware = app(ResolvePlatform::class);
+            $request = Request::create('/');
             $request->headers->set('X-Platform-Token', $token->token);
 
-            $middleware->handle($request, fn () => new \Illuminate\Http\Response(), 'token');
+            $middleware->handle($request, fn () => new Response, 'token');
 
             $platform = app(Platform::class);
             expect($platform->can('read'))->toBeTrue();
@@ -223,23 +227,23 @@ describe('PlatformContext', function () {
         });
 
         it('rejects an expired token', function () {
-            $model = (new PlatformFactory())->create();
+            $model = (new PlatformFactory)->create();
             $token = AuthToken::create([
                 'platform_id' => $model->id,
-                'expired_at'  => now()->subMinute(),
+                'expired_at' => now()->subMinute(),
             ]);
 
-            $middleware = app(\mindtwo\LaravelPlatformManager\Middleware\ResolvePlatform::class);
-            $request = \Illuminate\Http\Request::create('/');
+            $middleware = app(ResolvePlatform::class);
+            $request = Request::create('/');
             $request->headers->set('X-Platform-Token', $token->token);
 
-            $middleware->handle($request, fn () => new \Illuminate\Http\Response(), 'token');
-        })->throws(\Symfony\Component\HttpKernel\Exception\HttpException::class);
+            $middleware->handle($request, fn () => new Response, 'token');
+        })->throws(HttpException::class);
     });
 
     describe('hostname scopes', function () {
         it('resolves by hostname scope', function () {
-            $model = (new PlatformFactory())->create(['hostname' => 'example.com']);
+            $model = (new PlatformFactory)->create(['hostname' => 'example.com']);
 
             $resolved = PlatformModel::query()->isActive()->byHostname('example.com')->first();
 
@@ -248,7 +252,7 @@ describe('PlatformContext', function () {
         });
 
         it('resolves by wildcard hostname (*.tld)', function () {
-            $model = (new PlatformFactory())->create(['hostname' => '*.example.com']);
+            $model = (new PlatformFactory)->create(['hostname' => '*.example.com']);
 
             $resolved = PlatformModel::query()->isActive()->byHostname('foo.example.com')->first();
 
@@ -257,7 +261,7 @@ describe('PlatformContext', function () {
         });
 
         it('resolves by wildcard hostname (prefix.*)', function () {
-            $model = (new PlatformFactory())->create(['hostname' => 'my.app.*']);
+            $model = (new PlatformFactory)->create(['hostname' => 'my.app.*']);
 
             $resolved = PlatformModel::query()->isActive()->byHostname('my.app.com')->first();
 
@@ -266,8 +270,8 @@ describe('PlatformContext', function () {
         });
 
         it('resolves by wildcard pattern in additional_hostnames', function () {
-            $model = (new PlatformFactory())->create([
-                'hostname'             => 'example.com',
+            $model = (new PlatformFactory)->create([
+                'hostname' => 'example.com',
                 'additional_hostnames' => ['*.staging.example.com'],
             ]);
 
@@ -278,7 +282,7 @@ describe('PlatformContext', function () {
         });
 
         it('does not match a wildcard hostname pattern against a non-matching hostname', function () {
-            (new PlatformFactory())->create(['hostname' => '*.example.com']);
+            (new PlatformFactory)->create(['hostname' => '*.example.com']);
 
             $resolved = PlatformModel::query()->isActive()->byHostname('foo.other.com')->first();
 
@@ -288,7 +292,7 @@ describe('PlatformContext', function () {
 
     describe('context scope', function () {
         it('resolves by context scope', function () {
-            $model = (new PlatformFactory())->create(['context' => 'my-tenant']);
+            $model = (new PlatformFactory)->create(['context' => 'my-tenant']);
 
             $resolved = PlatformModel::query()->isActive()->byContext('my-tenant')->first();
 
@@ -297,7 +301,7 @@ describe('PlatformContext', function () {
         });
 
         it('does not resolve inactive platforms', function () {
-            (new PlatformFactory())->inactive()->create(['hostname' => 'example.com']);
+            (new PlatformFactory)->inactive()->create(['hostname' => 'example.com']);
 
             $resolved = PlatformModel::query()->isActive()->byHostname('example.com')->first();
 
@@ -307,7 +311,7 @@ describe('PlatformContext', function () {
 
     describe('session resolver', function () {
         it('saveToSession() stores the platform PK in the session', function () {
-            $model = (new PlatformFactory())->create();
+            $model = (new PlatformFactory)->create();
 
             app(Platform::class)->set($model, 'host');
             app(Platform::class)->saveToSession();
@@ -316,7 +320,7 @@ describe('PlatformContext', function () {
         });
 
         it('saveToSession() accepts a model and sets it before saving', function () {
-            $model = (new PlatformFactory())->create();
+            $model = (new PlatformFactory)->create();
 
             app(Platform::class)->saveToSession($model);
 
@@ -328,10 +332,10 @@ describe('PlatformContext', function () {
 
         it('saveToSession() throws when no platform is resolved', function () {
             app(Platform::class)->saveToSession();
-        })->throws(\LogicException::class);
+        })->throws(LogicException::class);
 
         it('clearFromSession() removes the platform from the session', function () {
-            $model = (new PlatformFactory())->create();
+            $model = (new PlatformFactory)->create();
 
             app(Platform::class)->saveToSession($model);
             app(Platform::class)->clearFromSession();
@@ -340,14 +344,14 @@ describe('PlatformContext', function () {
         });
 
         it('resolves platform from session via middleware', function () {
-            $model = (new PlatformFactory())->create();
+            $model = (new PlatformFactory)->create();
 
-            $middleware = app(\mindtwo\LaravelPlatformManager\Middleware\ResolvePlatform::class);
-            $request = \Illuminate\Http\Request::create('/');
+            $middleware = app(ResolvePlatform::class);
+            $request = Request::create('/');
             $request->setLaravelSession(session()->driver());
             session()->put(config('platform.session_key'), $model->id);
 
-            $middleware->handle($request, fn () => new \Illuminate\Http\Response(), 'session');
+            $middleware->handle($request, fn () => new Response, 'session');
 
             expect(app(Platform::class)->isResolved())->toBeTrue();
             expect(app(Platform::class)->get()->id)->toBe($model->id);
@@ -355,29 +359,29 @@ describe('PlatformContext', function () {
         });
 
         it('returns null when session is empty', function () {
-            $middleware = app(\mindtwo\LaravelPlatformManager\Middleware\ResolvePlatform::class);
-            $request = \Illuminate\Http\Request::create('/');
+            $middleware = app(ResolvePlatform::class);
+            $request = Request::create('/');
             $request->setLaravelSession(session()->driver());
 
             // Falls through to host, which also fails → 404
-            $middleware->handle($request, fn () => new \Illuminate\Http\Response(), 'session');
-        })->throws(\Symfony\Component\HttpKernel\Exception\HttpException::class);
+            $middleware->handle($request, fn () => new Response, 'session');
+        })->throws(HttpException::class);
 
         it('skips inactive platforms', function () {
-            $model = (new PlatformFactory())->inactive()->create();
+            $model = (new PlatformFactory)->inactive()->create();
 
-            $middleware = app(\mindtwo\LaravelPlatformManager\Middleware\ResolvePlatform::class);
-            $request = \Illuminate\Http\Request::create('/');
+            $middleware = app(ResolvePlatform::class);
+            $request = Request::create('/');
             $request->setLaravelSession(session()->driver());
             session()->put(config('platform.session_key'), $model->id);
 
-            $middleware->handle($request, fn () => new \Illuminate\Http\Response(), 'session');
-        })->throws(\Symfony\Component\HttpKernel\Exception\HttpException::class);
+            $middleware->handle($request, fn () => new Response, 'session');
+        })->throws(HttpException::class);
     });
 
     describe('baseline scopes', function () {
         it('can() returns true for a platform baseline scope on a non-token resolver', function () {
-            $model = (new PlatformFactory())->create(['scopes' => ['read']]);
+            $model = (new PlatformFactory)->create(['scopes' => ['read']]);
 
             app(Platform::class)->set($model, 'host');
 
@@ -385,7 +389,7 @@ describe('PlatformContext', function () {
         });
 
         it('set() merges platform model scopes with extra scopes passed as third argument', function () {
-            $model = (new PlatformFactory())->create(['scopes' => ['read']]);
+            $model = (new PlatformFactory)->create(['scopes' => ['read']]);
 
             app(Platform::class)->set($model, 'token', ['write']);
 

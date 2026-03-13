@@ -10,8 +10,8 @@ trait InteractsWithPlatform
     /**
      * Set a fake platform on the singleton and return it.
      *
-     * @param array<string, mixed> $attributes
-     * @param array<string>        $scopes
+     * @param  array<string, mixed>  $attributes
+     * @param  array<string>  $scopes
      */
     public function setPlatform(
         array $attributes = [],

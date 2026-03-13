@@ -39,7 +39,7 @@ describe('BelongsToManyPlatforms', function () {
         });
 
         it('returns the attached platforms', function () {
-            $platform = (new PlatformFactory())->create();
+            $platform = (new PlatformFactory)->create();
             $post = Post::create([]);
             $post->platforms()->attach($platform->id);
 
@@ -50,8 +50,8 @@ describe('BelongsToManyPlatforms', function () {
 
     describe('scopes', function () {
         it('forCurrentPlatform() returns only records attached to the current platform', function () {
-            $platform1 = (new PlatformFactory())->create();
-            $platform2 = (new PlatformFactory())->create();
+            $platform1 = (new PlatformFactory)->create();
+            $platform2 = (new PlatformFactory)->create();
 
             $post1 = Post::create([]);
             $post1->platforms()->attach($platform1->id);
@@ -68,7 +68,7 @@ describe('BelongsToManyPlatforms', function () {
         });
 
         it('forCurrentPlatform() returns records attached to multiple platforms', function () {
-            $platform = (new PlatformFactory())->create();
+            $platform = (new PlatformFactory)->create();
 
             $post1 = Post::create([]);
             $post1->platforms()->attach($platform->id);
@@ -84,8 +84,8 @@ describe('BelongsToManyPlatforms', function () {
         });
 
         it('forPlatform() filters by model instance', function () {
-            $platform1 = (new PlatformFactory())->create();
-            $platform2 = (new PlatformFactory())->create();
+            $platform1 = (new PlatformFactory)->create();
+            $platform2 = (new PlatformFactory)->create();
 
             $post1 = Post::create([]);
             $post1->platforms()->attach($platform1->id);
@@ -100,8 +100,8 @@ describe('BelongsToManyPlatforms', function () {
         });
 
         it('forPlatform() filters by raw integer id', function () {
-            $platform1 = (new PlatformFactory())->create();
-            $platform2 = (new PlatformFactory())->create();
+            $platform1 = (new PlatformFactory)->create();
+            $platform2 = (new PlatformFactory)->create();
 
             $post1 = Post::create([]);
             $post1->platforms()->attach($platform1->id);

@@ -30,8 +30,10 @@ describe('PlatformSettingsCast', function () {
         });
 
         it('encrypted fields are encrypted in toStorageArray() and decrypted in fromArray()', function () {
-            $custom = new class extends PlatformSettings {
+            $custom = new class extends PlatformSettings
+            {
                 protected array $encrypted = ['secret'];
+
                 public ?string $secret = null;
             };
 
@@ -45,8 +47,10 @@ describe('PlatformSettingsCast', function () {
         });
 
         it('encrypted fields do not appear in plain text in toStorageArray()', function () {
-            $custom = new class extends PlatformSettings {
+            $custom = new class extends PlatformSettings
+            {
                 protected array $encrypted = ['apiKey'];
+
                 public ?string $apiKey = null;
             };
 
@@ -59,14 +63,14 @@ describe('PlatformSettingsCast', function () {
 
     describe('AsSettings cast via Platform model', function () {
         it('settings column is hydrated as a PlatformSettings instance', function () {
-            $platform = (new PlatformFactory())->create(['settings' => ['timezone' => 'UTC']]);
+            $platform = (new PlatformFactory)->create(['settings' => ['timezone' => 'UTC']]);
 
             expect($platform->settings)->toBeInstanceOf(PlatformSettings::class);
             expect($platform->setting('timezone'))->toBe('UTC');
         });
 
         it('settings persists and reloads correctly via the cast', function () {
-            $platform = (new PlatformFactory())->create(['settings' => ['plan' => 'pro']]);
+            $platform = (new PlatformFactory)->create(['settings' => ['plan' => 'pro']]);
 
             $fresh = $platform->fresh();
 
@@ -74,14 +78,14 @@ describe('PlatformSettingsCast', function () {
         });
 
         it('null settings column returns an empty PlatformSettings instance', function () {
-            $platform = (new PlatformFactory())->create(['settings' => null]);
+            $platform = (new PlatformFactory)->create(['settings' => null]);
 
             expect($platform->settings)->toBeInstanceOf(PlatformSettings::class);
             expect($platform->settings->toArray())->toBe([]);
         });
 
         it('overflow keys pass through the cast round-trip', function () {
-            $platform = (new PlatformFactory())->create([
+            $platform = (new PlatformFactory)->create([
                 'settings' => ['config' => ['mail' => ['from' => 'test@example.com']]],
             ]);
 
@@ -91,7 +95,7 @@ describe('PlatformSettingsCast', function () {
         });
 
         it('assigning settings as array is cast correctly', function () {
-            $platform = (new PlatformFactory())->create();
+            $platform = (new PlatformFactory)->create();
             $platform->update(['settings' => ['locale' => 'de']]);
 
             expect($platform->fresh()->setting('locale'))->toBe('de');

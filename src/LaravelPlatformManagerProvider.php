@@ -23,7 +23,7 @@ class LaravelPlatformManagerProvider extends ServiceProvider
         ], ['config', 'platform-manager']);
 
         $this->publishes([
-            __DIR__.'/../database/migrations/create_platforms_table.php'   => database_path('migrations/'.date('Y_m_d_His', time()).'_create_platforms_table.php'),
+            __DIR__.'/../database/migrations/create_platforms_table.php' => database_path('migrations/'.date('Y_m_d_His', time()).'_create_platforms_table.php'),
             __DIR__.'/../database/migrations/create_auth_tokens_table.php' => database_path('migrations/'.date('Y_m_d_His', time() + 1).'_create_auth_tokens_table.php'),
         ], ['migrations', 'platform-manager']);
 

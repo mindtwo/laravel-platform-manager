@@ -12,7 +12,7 @@ uses(RefreshDatabase::class);
 describe('PlatformRepository', function () {
     describe('value-based finders', function () {
         it('findByHostname() returns the active platform for the given hostname', function () {
-            $model = (new PlatformFactory())->create(['hostname' => 'example.com']);
+            $model = (new PlatformFactory)->create(['hostname' => 'example.com']);
 
             $result = app(PlatformRepository::class)->findByHostname('example.com');
 
@@ -21,13 +21,13 @@ describe('PlatformRepository', function () {
         });
 
         it('findByHostname() returns null for an inactive platform', function () {
-            (new PlatformFactory())->inactive()->create(['hostname' => 'example.com']);
+            (new PlatformFactory)->inactive()->create(['hostname' => 'example.com']);
 
             expect(app(PlatformRepository::class)->findByHostname('example.com'))->toBeNull();
         });
 
         it('findByContext() returns the active platform for the given context', function () {
-            $model = (new PlatformFactory())->create(['context' => 'my-tenant']);
+            $model = (new PlatformFactory)->create(['context' => 'my-tenant']);
 
             $result = app(PlatformRepository::class)->findByContext('my-tenant');
 
@@ -40,7 +40,7 @@ describe('PlatformRepository', function () {
         });
 
         it('findActiveById() returns the active platform', function () {
-            $model = (new PlatformFactory())->create();
+            $model = (new PlatformFactory)->create();
 
             $result = app(PlatformRepository::class)->findActiveById($model->id);
 
@@ -49,13 +49,13 @@ describe('PlatformRepository', function () {
         });
 
         it('findActiveById() returns null for an inactive platform', function () {
-            $model = (new PlatformFactory())->inactive()->create();
+            $model = (new PlatformFactory)->inactive()->create();
 
             expect(app(PlatformRepository::class)->findActiveById($model->id))->toBeNull();
         });
 
         it('findByUuid() returns the platform for the given uuid', function () {
-            $model = (new PlatformFactory())->create();
+            $model = (new PlatformFactory)->create();
 
             $result = app(PlatformRepository::class)->findByUuid($model->uuid);
 
@@ -68,7 +68,7 @@ describe('PlatformRepository', function () {
         });
 
         it('findByTokenWithScopes() returns platform and merged scopes', function () {
-            $model = (new PlatformFactory())->create(['scopes' => ['read']]);
+            $model = (new PlatformFactory)->create(['scopes' => ['read']]);
             $token = AuthToken::create(['platform_id' => $model->id, 'scopes' => ['write']]);
 
             $result = app(PlatformRepository::class)->findByTokenWithScopes($token->token);
@@ -80,7 +80,7 @@ describe('PlatformRepository', function () {
         });
 
         it('findByTokenWithScopes() deduplicates overlapping scopes', function () {
-            $model = (new PlatformFactory())->create(['scopes' => ['read']]);
+            $model = (new PlatformFactory)->create(['scopes' => ['read']]);
             $token = AuthToken::create(['platform_id' => $model->id, 'scopes' => ['read', 'write']]);
 
             $result = app(PlatformRepository::class)->findByTokenWithScopes($token->token);
@@ -89,17 +89,17 @@ describe('PlatformRepository', function () {
         });
 
         it('findByTokenWithScopes() returns null for an expired token', function () {
-            $model = (new PlatformFactory())->create();
+            $model = (new PlatformFactory)->create();
             $token = AuthToken::create([
                 'platform_id' => $model->id,
-                'expired_at'  => now()->subMinute(),
+                'expired_at' => now()->subMinute(),
             ]);
 
             expect(app(PlatformRepository::class)->findByTokenWithScopes($token->token))->toBeNull();
         });
 
         it('findByTokenWithScopes() returns null for an inactive platform', function () {
-            $model = (new PlatformFactory())->inactive()->create();
+            $model = (new PlatformFactory)->inactive()->create();
             $token = AuthToken::create(['platform_id' => $model->id]);
 
             expect(app(PlatformRepository::class)->findByTokenWithScopes($token->token))->toBeNull();
@@ -108,7 +108,7 @@ describe('PlatformRepository', function () {
 
     describe('request-aware resolvers', function () {
         it('resolveByToken() reads the X-Platform-Token header', function () {
-            $model = (new PlatformFactory())->create();
+            $model = (new PlatformFactory)->create();
             $token = AuthToken::create(['platform_id' => $model->id, 'scopes' => ['read']]);
 
             $request = Request::create('/');
@@ -122,7 +122,7 @@ describe('PlatformRepository', function () {
         });
 
         it('resolveByToken() falls back to the legacy header', function () {
-            $model = (new PlatformFactory())->create();
+            $model = (new PlatformFactory)->create();
             $token = AuthToken::create(['platform_id' => $model->id]);
 
             config(['platform.header_names.token_legacy' => 'X-Legacy-Token']);
@@ -143,7 +143,7 @@ describe('PlatformRepository', function () {
         });
 
         it('resolveByHostname() reads the host from the request', function () {
-            $model = (new PlatformFactory())->create(['hostname' => 'example.com']);
+            $model = (new PlatformFactory)->create(['hostname' => 'example.com']);
 
             $request = Request::create('http://example.com/');
 
@@ -154,7 +154,7 @@ describe('PlatformRepository', function () {
         });
 
         it('resolveByContext() reads the X-Platform-Context header', function () {
-            $model = (new PlatformFactory())->create(['context' => 'my-tenant']);
+            $model = (new PlatformFactory)->create(['context' => 'my-tenant']);
 
             $request = Request::create('/');
             $request->headers->set('X-Platform-Context', 'my-tenant');
@@ -172,7 +172,7 @@ describe('PlatformRepository', function () {
         });
 
         it('resolveBySession() reads the platform id from the session', function () {
-            $model = (new PlatformFactory())->create();
+            $model = (new PlatformFactory)->create();
 
             $request = Request::create('/');
             $request->setLaravelSession(session()->driver());
@@ -194,8 +194,8 @@ describe('PlatformRepository', function () {
 
     describe('collection queries', function () {
         it('allActive() returns only active platforms', function () {
-            (new PlatformFactory())->count(2)->create();
-            (new PlatformFactory())->inactive()->create();
+            (new PlatformFactory)->count(2)->create();
+            (new PlatformFactory)->inactive()->create();
 
             $results = app(PlatformRepository::class)->allActive();
 
@@ -204,8 +204,8 @@ describe('PlatformRepository', function () {
         });
 
         it('count() returns the number of matching platforms', function () {
-            (new PlatformFactory())->count(3)->create();
-            (new PlatformFactory())->inactive()->create();
+            (new PlatformFactory)->count(3)->create();
+            (new PlatformFactory)->inactive()->create();
 
             expect(app(PlatformRepository::class)->count(['is_active' => true]))->toBe(3);
             expect(app(PlatformRepository::class)->count(['is_active' => false]))->toBe(1);

@@ -10,6 +10,8 @@ class Article extends Model
     use BelongsToPlatform;
 
     protected $table = 'articles';
+
     protected $guarded = [];
+
     public $timestamps = false;
 }

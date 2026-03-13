@@ -1,17 +1,20 @@
 <?php
 
+use mindtwo\LaravelPlatformManager\Models\Platform;
+use mindtwo\LaravelPlatformManager\Settings\PlatformSettings;
+
 return [
 
     /**
      * Set platform model
      */
-    'model' => \mindtwo\LaravelPlatformManager\Models\Platform::class,
+    'model' => Platform::class,
 
     /**
      * Settings DTO class. Extend PlatformSettings to declare typed properties
      * and mark sensitive ones for encryption via $encrypted.
      */
-    'settings' => \mindtwo\LaravelPlatformManager\Settings\PlatformSettings::class,
+    'settings' => PlatformSettings::class,
 
     /**
      * Header Names used to retrieve platform

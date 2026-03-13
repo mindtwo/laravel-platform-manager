@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use mindtwo\LaravelPlatformManager\Models\Platform;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<Platform>
+ * @extends Factory<Platform>
  */
 class PlatformFactory extends Factory
 {
@@ -16,8 +16,8 @@ class PlatformFactory extends Factory
     {
         return [
             'is_active' => true,
-            'hostname'  => $this->faker->domainName,
-            'settings'  => null,
+            'hostname' => $this->faker->domainName,
+            'settings' => null,
         ];
     }
 

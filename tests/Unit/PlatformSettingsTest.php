@@ -1,20 +1,21 @@
 <?php
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use mindtwo\LaravelPlatformManager\Platform;
 use mindtwo\LaravelPlatformManager\Tests\Fake\PlatformFactory;
 
 uses(RefreshDatabase::class);
 
 describe('PlatformSettings', function () {
     it('returns null when settings are empty', function () {
-        $platform = (new PlatformFactory())->create(['settings' => null]);
+        $platform = (new PlatformFactory)->create(['settings' => null]);
 
         expect($platform->setting('some.key'))->toBeNull();
         expect($platform->setting('some.key', 'default'))->toBe('default');
     });
 
     it('can read a top-level setting', function () {
-        $platform = (new PlatformFactory())->create([
+        $platform = (new PlatformFactory)->create([
             'settings' => ['timezone' => 'Europe/Berlin'],
         ]);
 
@@ -22,7 +23,7 @@ describe('PlatformSettings', function () {
     });
 
     it('can read a nested setting using dot notation', function () {
-        $platform = (new PlatformFactory())->create([
+        $platform = (new PlatformFactory)->create([
             'settings' => ['mail' => ['from' => 'hello@example.com']],
         ]);
 
@@ -30,7 +31,7 @@ describe('PlatformSettings', function () {
     });
 
     it('returns default when nested key is missing', function () {
-        $platform = (new PlatformFactory())->create([
+        $platform = (new PlatformFactory)->create([
             'settings' => ['mail' => ['from' => 'hello@example.com']],
         ]);
 
@@ -38,11 +39,11 @@ describe('PlatformSettings', function () {
     });
 
     it('can read settings via the platform context class', function () {
-        $model = (new PlatformFactory())->create([
+        $model = (new PlatformFactory)->create([
             'settings' => ['app_name' => 'My Platform'],
         ]);
 
-        $context = app(\mindtwo\LaravelPlatformManager\Platform::class);
+        $context = app(Platform::class);
         $context->set($model, 'test');
 
         expect($context->setting('app_name'))->toBe('My Platform');

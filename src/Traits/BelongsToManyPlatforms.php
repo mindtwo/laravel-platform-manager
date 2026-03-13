@@ -3,11 +3,14 @@
 namespace mindtwo\LaravelPlatformManager\Traits;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use mindtwo\LaravelPlatformManager\Models\Platform as PlatformModel;
 
 /**
- * @property-read \Illuminate\Database\Eloquent\Collection<int, PlatformModel> $platforms
+ * @property-read Collection<int, PlatformModel> $platforms
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static> forCurrentPlatform()
  * @method static \Illuminate\Database\Eloquent\Builder<static> forPlatform(PlatformModel|int $platform)
  */
@@ -22,8 +25,8 @@ trait BelongsToManyPlatforms
     }
 
     /**
-     * @param  Builder<\Illuminate\Database\Eloquent\Model>  $query
-     * @return Builder<\Illuminate\Database\Eloquent\Model>
+     * @param  Builder<Model>  $query
+     * @return Builder<Model>
      */
     public function scopeForCurrentPlatform(Builder $query): Builder
     {
@@ -33,8 +36,8 @@ trait BelongsToManyPlatforms
     }
 
     /**
-     * @param  Builder<\Illuminate\Database\Eloquent\Model>  $query
-     * @return Builder<\Illuminate\Database\Eloquent\Model>
+     * @param  Builder<Model>  $query
+     * @return Builder<Model>
      */
     public function scopeForPlatform(Builder $query, PlatformModel|int $platform): Builder
     {

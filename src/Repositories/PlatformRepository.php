@@ -40,7 +40,7 @@ class PlatformRepository extends AbstractRepository
      *   - hostname  (string) — exact or wildcard match
      *   - context   (string) — exact match
      *
-     * @param Builder<PlatformModel> $builder
+     * @param  Builder<PlatformModel>  $builder
      * @return Builder<PlatformModel>
      */
     protected function applyFilters(Builder $builder, array $parameters): Builder

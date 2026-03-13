@@ -6,19 +6,24 @@ use Illuminate\Http\Response;
 use mindtwo\LaravelPlatformManager\Middleware\EnsurePlatformScope;
 use mindtwo\LaravelPlatformManager\Platform;
 use mindtwo\LaravelPlatformManager\Tests\Fake\PlatformFactory;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 uses(RefreshDatabase::class);
 
 describe('EnsurePlatformScope', function () {
     describe('passing requests', function () {
         it('passes when the platform has the required scope', function () {
-            $model = (new PlatformFactory())->create();
+            $model = (new PlatformFactory)->create();
             app(Platform::class)->set($model, 'host', ['read']);
 
             $called = false;
             app(EnsurePlatformScope::class)->handle(
                 Request::create('/'),
-                function () use (&$called) { $called = true; return new Response; },
+                function () use (&$called) {
+                    $called = true;
+
+                    return new Response;
+                },
                 'read',
             );
 
@@ -26,13 +31,17 @@ describe('EnsurePlatformScope', function () {
         });
 
         it('passes when all required scopes are present', function () {
-            $model = (new PlatformFactory())->create();
+            $model = (new PlatformFactory)->create();
             app(Platform::class)->set($model, 'host', ['read', 'write']);
 
             $called = false;
             app(EnsurePlatformScope::class)->handle(
                 Request::create('/'),
-                function () use (&$called) { $called = true; return new Response; },
+                function () use (&$called) {
+                    $called = true;
+
+                    return new Response;
+                },
                 'read',
                 'write',
             );
@@ -41,13 +50,17 @@ describe('EnsurePlatformScope', function () {
         });
 
         it('passes when scope comes from the platform baseline', function () {
-            $model = (new PlatformFactory())->create(['scopes' => ['read']]);
+            $model = (new PlatformFactory)->create(['scopes' => ['read']]);
             app(Platform::class)->set($model, 'host');
 
             $called = false;
             app(EnsurePlatformScope::class)->handle(
                 Request::create('/'),
-                function () use (&$called) { $called = true; return new Response; },
+                function () use (&$called) {
+                    $called = true;
+
+                    return new Response;
+                },
                 'read',
             );
 
@@ -57,7 +70,7 @@ describe('EnsurePlatformScope', function () {
 
     describe('blocked requests', function () {
         it('aborts with 403 when the platform lacks the required scope', function () {
-            $model = (new PlatformFactory())->create();
+            $model = (new PlatformFactory)->create();
             app(Platform::class)->set($model, 'host', ['read']);
 
             app(EnsurePlatformScope::class)->handle(
@@ -65,10 +78,10 @@ describe('EnsurePlatformScope', function () {
                 fn () => new Response,
                 'write',
             );
-        })->throws(\Symfony\Component\HttpKernel\Exception\HttpException::class);
+        })->throws(HttpException::class);
 
         it('aborts with 403 when one of multiple required scopes is missing', function () {
-            $model = (new PlatformFactory())->create();
+            $model = (new PlatformFactory)->create();
             app(Platform::class)->set($model, 'host', ['read']);
 
             app(EnsurePlatformScope::class)->handle(
@@ -77,6 +90,6 @@ describe('EnsurePlatformScope', function () {
                 'read',
                 'write',
             );
-        })->throws(\Symfony\Component\HttpKernel\Exception\HttpException::class);
+        })->throws(HttpException::class);
     });
 });

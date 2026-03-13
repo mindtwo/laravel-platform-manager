@@ -11,7 +11,7 @@ describe('ConfigOverride', function () {
     it('applies config overrides defined in $configKeys when platform is set', function () {
         config(['platform.settings' => ConfigurableSettings::class]);
 
-        $model = (new PlatformFactory())->create([
+        $model = (new PlatformFactory)->create([
             'settings' => ['timezone' => 'America/New_York'],
         ]);
 
@@ -24,7 +24,7 @@ describe('ConfigOverride', function () {
     it('does not override config when settings are absent', function () {
         $original = config('app.timezone');
 
-        $model = (new PlatformFactory())->create(['settings' => null]);
+        $model = (new PlatformFactory)->create(['settings' => null]);
 
         $platform = app(Platform::class);
         $platform->set($model, 'test');
@@ -35,7 +35,7 @@ describe('ConfigOverride', function () {
     it('does not override config when $configKeys is empty', function () {
         $original = config('app.timezone');
 
-        $model = (new PlatformFactory())->create([
+        $model = (new PlatformFactory)->create([
             'settings' => ['timezone' => 'America/New_York'],
         ]);
 
@@ -50,7 +50,7 @@ describe('ConfigOverride', function () {
 
         $original = config('app.timezone');
 
-        $model = (new PlatformFactory())->create(['settings' => []]);
+        $model = (new PlatformFactory)->create(['settings' => []]);
 
         $platform = app(Platform::class);
         $platform->set($model, 'test');

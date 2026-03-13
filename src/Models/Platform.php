@@ -5,6 +5,7 @@ namespace mindtwo\LaravelPlatformManager\Models;
 use Carbon\Carbon;
 use Illuminate\Contracts\Database\Query\Builder as QueryBuilder;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -25,8 +26,9 @@ use mindtwo\LaravelPlatformManager\Settings\PlatformSettings;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \mindtwo\LaravelPlatformManager\Models\AuthToken> $authTokens
+ * @property-read Collection<int, AuthToken> $authTokens
  * @property-read int|null $auth_tokens_count
+ *
  * @method static Builder<static>|Platform byContext(string $context)
  * @method static Builder<static>|Platform byHostname(string $hostname)
  * @method static Builder<static>|Platform byToken(string $token)
@@ -37,6 +39,7 @@ use mindtwo\LaravelPlatformManager\Settings\PlatformSettings;
  * @method static Builder<static>|Platform query()
  * @method static Builder<static>|Platform withTrashed(bool $withTrashed = true)
  * @method static Builder<static>|Platform withoutTrashed()
+ *
  * @mixin \Eloquent
  */
 class Platform extends Model
@@ -61,10 +64,10 @@ class Platform extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'is_active'            => 'boolean',
+        'is_active' => 'boolean',
         'additional_hostnames' => 'array',
-        'scopes'               => 'array',
-        'settings'             => AsSettings::class,
+        'scopes' => 'array',
+        'settings' => AsSettings::class,
     ];
 
     /**

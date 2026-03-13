@@ -25,7 +25,7 @@ describe('BelongsToPlatform', function () {
 
     describe('relationship', function () {
         it('platform() returns a BelongsTo pointing to the correct platform', function () {
-            $platformModel = (new PlatformFactory())->create();
+            $platformModel = (new PlatformFactory)->create();
             $article = Article::create(['platform_id' => $platformModel->id]);
 
             $relation = $article->platform();
@@ -38,7 +38,7 @@ describe('BelongsToPlatform', function () {
 
     describe('auto-fill', function () {
         it('sets platform_id from the resolved context on create()', function () {
-            $platformModel = (new PlatformFactory())->create();
+            $platformModel = (new PlatformFactory)->create();
             app(Platform::class)->set($platformModel, 'test');
 
             $article = Article::create([]);
@@ -47,8 +47,8 @@ describe('BelongsToPlatform', function () {
         });
 
         it('does not overwrite an explicit platform_id', function () {
-            $platform1 = (new PlatformFactory())->create();
-            $platform2 = (new PlatformFactory())->create();
+            $platform1 = (new PlatformFactory)->create();
+            $platform2 = (new PlatformFactory)->create();
 
             app(Platform::class)->set($platform1, 'test');
 
@@ -66,7 +66,7 @@ describe('BelongsToPlatform', function () {
 
     describe('scopes', function () {
         it('forCurrentPlatform() returns only records belonging to the current platform', function () {
-            $platform = (new PlatformFactory())->create();
+            $platform = (new PlatformFactory)->create();
             app(Platform::class)->set($platform, 'test');
 
             Article::create(['platform_id' => $platform->id]);
@@ -78,8 +78,8 @@ describe('BelongsToPlatform', function () {
         });
 
         it('forCurrentPlatform() excludes records belonging to a different platform', function () {
-            $platform1 = (new PlatformFactory())->create();
-            $platform2 = (new PlatformFactory())->create();
+            $platform1 = (new PlatformFactory)->create();
+            $platform2 = (new PlatformFactory)->create();
 
             app(Platform::class)->set($platform1, 'test');
 
@@ -93,8 +93,8 @@ describe('BelongsToPlatform', function () {
         });
 
         it('forPlatform() filters by model instance', function () {
-            $platform1 = (new PlatformFactory())->create();
-            $platform2 = (new PlatformFactory())->create();
+            $platform1 = (new PlatformFactory)->create();
+            $platform2 = (new PlatformFactory)->create();
 
             Article::create(['platform_id' => $platform1->id]);
             Article::create(['platform_id' => $platform2->id]);
@@ -106,8 +106,8 @@ describe('BelongsToPlatform', function () {
         });
 
         it('forPlatform() filters by raw integer ID', function () {
-            $platform1 = (new PlatformFactory())->create();
-            $platform2 = (new PlatformFactory())->create();
+            $platform1 = (new PlatformFactory)->create();
+            $platform2 = (new PlatformFactory)->create();
 
             Article::create(['platform_id' => $platform1->id]);
             Article::create(['platform_id' => $platform2->id]);

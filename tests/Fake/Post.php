@@ -10,6 +10,8 @@ class Post extends Model
     use BelongsToManyPlatforms;
 
     protected $table = 'posts';
+
     protected $guarded = [];
+
     public $timestamps = false;
 }
