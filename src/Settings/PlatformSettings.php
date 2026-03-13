@@ -14,11 +14,25 @@ class PlatformSettings
 
     /**
      * Holds JSON keys that have no matching declared property, so arbitrary
-     * data (e.g. config overrides stored under 'config') round-trips safely.
+     * data round-trips safely.
      *
      * @var array<string, mixed>
      */
     protected array $overflow = [];
+
+    /**
+     * Maps settings keys to Laravel config paths. Each entry will be injected
+     * into the application config when the platform is resolved.
+     *
+     * Example:
+     *   protected array $configKeys = [
+     *       'mail_host' => 'mail.mailers.smtp.host',
+     *       'app_name'  => 'app.name',
+     *   ];
+     *
+     * @var array<string, string>
+     */
+    protected array $configKeys = [];
 
     /**
      * Hydrate from a raw (storage) array. Encrypted fields are decrypted.
@@ -42,6 +56,33 @@ class PlatformSettings
         }
 
         return $instance;
+    }
+
+    /**
+     * Build the config overrides array for injection into the Laravel config.
+     * Only entries defined in $configKeys with a non-null value are included.
+     *
+     * @return array<string, mixed>
+     */
+    public function configOverrides(): array
+    {
+        $overrides = [];
+
+        foreach ($this->configKeys as $settingsKey => $configPath) {
+            if (property_exists($this, $settingsKey)) {
+                $value = $this->{$settingsKey};
+            } elseif (array_key_exists($settingsKey, $this->overflow)) {
+                $value = $this->overflow[$settingsKey];
+            } else {
+                continue;
+            }
+
+            if ($value !== null) {
+                $overrides[$configPath] = $value;
+            }
+        }
+
+        return $overrides;
     }
 
     /**

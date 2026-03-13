@@ -140,8 +140,8 @@ class Platform
 
     private function applyConfigOverrides(): void
     {
-        $overrides = $this->model?->setting('config');
-        if (is_array($overrides) && count($overrides) > 0) {
+        $overrides = $this->model?->settings?->configOverrides() ?? [];
+        if (count($overrides) > 0) {
             config($overrides);
         }
     }
