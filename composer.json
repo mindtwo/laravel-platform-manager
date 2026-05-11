@@ -19,12 +19,12 @@
     ],
     "require": {
         "php": "^8.3||^8.4||^8.5",
-        "laravel/framework": "^12.0",
+        "laravel/framework": "^12.0|^13.0",
         "chiiya/laravel-utilities": "^5.7"
     },
     "require-dev": {
         "laravel/pint": "^1.4",
-        "orchestra/testbench": "^10.0",
+        "orchestra/testbench": "^10.0|^11.0",
         "pestphp/pest": "^4.0",
         "pestphp/pest-plugin-arch": "^4.0",
         "pestphp/pest-plugin-laravel": "^4.0",
